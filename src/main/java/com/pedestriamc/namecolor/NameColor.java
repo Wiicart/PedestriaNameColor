@@ -1,6 +1,6 @@
-package com.pedestriamc.NameColor;
+package com.pedestriamc.namecolor;
 
-import com.pedestriamc.NameColor.commands.NameColorCommand;
+import com.pedestriamc.namecolor.commands.NameColorCommand;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;

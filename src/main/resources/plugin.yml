@@ -1,6 +1,6 @@
 name: NameColor
 version: '${project.version}'
-main: com.pedestriamc.NameColor.NameColor
+main: com.pedestriamc.namecolor.NameColor
 api-version: 1.16
 prefix: '[NameColor]'
 authors: [ wiicart ]

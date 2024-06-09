@@ -1,4 +1,4 @@
-package com.pedestriamc.NameColor;
+package com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;

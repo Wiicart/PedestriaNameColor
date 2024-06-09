@@ -1,7 +1,7 @@
-package com.pedestriamc.NameColor.commands;
+package com.pedestriamc.namecolor.commands;
 
-import com.pedestriamc.NameColor.NameColor;
-import com.pedestriamc.NameColor.SetNameColor;
+import com.pedestriamc.namecolor.NameColor;
+import com.pedestriamc.namecolor.SetNameColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
