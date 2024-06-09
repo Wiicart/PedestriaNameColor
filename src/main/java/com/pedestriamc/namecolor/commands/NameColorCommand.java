@@ -1,12 +1,13 @@
-package com.pedestriamc.NameColor.commands;
+package com.pedestriamc.namecolor.commands;
 
-import com.pedestriamc.NameColor.NameColor;
-import com.pedestriamc.NameColor.SetNameColor;
+import com.pedestriamc.namecolor.NameColor;
+import com.pedestriamc.namecolor.SetNameColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 public class NameColorCommand implements CommandExecutor {
@@ -14,6 +15,7 @@ public class NameColorCommand implements CommandExecutor {
     static final String[] colors = new String[]{"BLACK", "DARKBLUE", "DARKGREEN", "DARKAQUA", "DARKRED", "DARKPURPLE", "GOLD", "GRAY", "DARKGRAY", "BLUE", "GREEN", "AQUA", "RED", "LIGHTPURPLE", "YELLOW", "WHITE"};
     static final ChatColor[] chatColors = new ChatColor[]{ChatColor.BLACK, ChatColor.DARK_BLUE, ChatColor.DARK_GREEN, ChatColor.DARK_AQUA, ChatColor.DARK_RED, ChatColor.DARK_PURPLE, ChatColor.GOLD, ChatColor.GRAY, ChatColor.DARK_GRAY, ChatColor.BLUE, ChatColor.GREEN, ChatColor.AQUA, ChatColor.RED, ChatColor.LIGHT_PURPLE, ChatColor.YELLOW, ChatColor.WHITE};
     private Player selectedPlayer;
+    private FileConfiguration config = NameColor.getInstance().getConfigFile();
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(args.length > 1 && !sender.hasPermission("namecolor.set.other")){
@@ -76,7 +78,7 @@ public class NameColorCommand implements CommandExecutor {
             return true;
 
         }
-        sender.sendMessage(prefix + "You don't have permission!");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("no-perms")));
         return true;
     }
 

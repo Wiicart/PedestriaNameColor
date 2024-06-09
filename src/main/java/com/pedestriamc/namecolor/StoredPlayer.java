@@ -1,4 +1,4 @@
-package com.pedestriamc.NameColor;
+package com.pedestriamc.namecolor;
 
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
@@ -8,14 +8,14 @@ import java.util.UUID;
 public class StoredPlayer {
 
     public enum Type{
-        RGB_COLOR, NICKNAME, CHAT_COLOR;
+        RGB_COLOR, NICKNAME, CHAT_COLOR
     }
 
-    private UUID uuid;
-    private ChatColor chatColor;
-    private String color;
-    private String nickname;
-    private Type type;
+    private final UUID uuid;
+    private final ChatColor chatColor;
+    private final String color;
+    private final Type type;
+    private final String nickname;
 
     public StoredPlayer(Player player, ChatColor c){//ChatColor constructor
         uuid = player.getUniqueId();
@@ -36,6 +36,7 @@ public class StoredPlayer {
             chatColor = null;
             color = name;
             type = Type.RGB_COLOR;
+            nickname = null;
         }
     }
     public UUID getUuid(){

@@ -1,11 +1,10 @@
-package com.pedestriamc.NameColor;
+package com.pedestriamc.namecolor;
 
-import com.pedestriamc.NameColor.NameColor;
-import com.pedestriamc.NameColor.StoredPlayer;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 public class StoredPlayers {
 
@@ -26,6 +25,8 @@ public class StoredPlayers {
             NameColor.getInstance().savePlayersConfig();
         }
     }
+
+    @Nullable
     public static StoredPlayer loadStoredPlayer(Player player){
         FileConfiguration config = NameColor.getInstance().getPlayersConfig();
         String playerUUID = player.getUniqueId().toString();

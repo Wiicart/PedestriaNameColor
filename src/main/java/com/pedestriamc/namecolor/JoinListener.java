@@ -1,4 +1,4 @@
-package com.pedestriamc.NameColor;
+package com.pedestriamc.namecolor;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

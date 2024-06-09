@@ -1,12 +1,17 @@
-package com.pedestriamc.NameColor;
+package com.pedestriamc.namecolor;
 
-import com.pedestriamc.NameColor.commands.NameColorCommand;
+import com.pedestriamc.namecolor.commands.NameColorCommand;
+import com.pedestriamc.namecolor.commands.NicknameCommand;
+import com.pedestriamc.namecolor.tabcompleters.NameColorCommandTabCompleter;
+import com.pedestriamc.namecolor.tabcompleters.NicknameTabCompleter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +30,7 @@ public final class NameColor extends JavaPlugin {
     private static NameColor instance;
     private File playersFile;
     private FileConfiguration playersConfig;
-    String mode;
+    private String mode;
 
     @Override
     public void onEnable() {
@@ -61,7 +66,11 @@ public final class NameColor extends JavaPlugin {
         int pluginId = 22112;
         Metrics metrics = new Metrics(this, pluginId);
         this.getCommand("namecolor").setExecutor(new NameColorCommand());
-        getCommand("namecolor").setTabCompleter(new NameColorCommandTabCompleter());
+        this.getCommand("nick").setExecutor(new NicknameCommand());
+        this.getCommand("nickname").setExecutor(new NicknameCommand());
+        this.getCommand("namecolor").setTabCompleter(new NameColorCommandTabCompleter());
+        this.getCommand("nick").setTabCompleter(new NicknameTabCompleter());
+        this.getCommand("nickname").setTabCompleter(new NicknameTabCompleter());
         getServer().getPluginManager().registerEvents(new JoinListener(), this);
         Bukkit.getLogger().info("[NameColor] Enabled");
 
@@ -70,6 +79,7 @@ public final class NameColor extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        this.savePlayersConfig();
         Bukkit.getLogger().info("NameColor disabled");
     }
     public static NameColor getInstance(){
@@ -102,7 +112,15 @@ public final class NameColor extends JavaPlugin {
             e.printStackTrace();
         }
     }
-    public static void sendMessage(Player player, String[] message){
-
+    @Nullable
+    public String processPlaceholders(Player player){
+        String msg = config.getString("name-set");
+        if(msg != null){
+            if(msg.contains("%display-name%")){
+                msg = msg.replace("%display-name%", player.getDisplayName());
+            }
+            return ChatColor.translateAlternateColorCodes('&', msg);
+        }
+        return null;
     }
 }

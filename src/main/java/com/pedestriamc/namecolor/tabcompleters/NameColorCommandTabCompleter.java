@@ -1,4 +1,4 @@
-package com.pedestriamc.NameColor;
+package com.pedestriamc.namecolor.tabcompleters;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

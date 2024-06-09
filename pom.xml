@@ -6,7 +6,7 @@
 
     <groupId>com.pedestriamc</groupId>
     <artifactId>NameColor</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>NameColor</name>
@@ -103,6 +103,12 @@
             <artifactId>EssentialsX</artifactId>
             <version>2.19.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
