@@ -1,17 +1,21 @@
+version: 1.3
 #-------------------------#
 #        NameColor        #
 #     pedestriamc.com     #
 #     author: wiicart     #
 #-------------------------#
-# Sets the plugin's prefix
-# Compatible with '&' color codes
+# Sets the plugin's prefix.
+# Compatible with '&' color codes.
 prefix: '&8[&dNameColor&8] &f'
+
 # Modes of changing nicknames:
 #  - auto (default)
-#    Automatically chooses the best mode.
+#    Automatically chooses the best mode
+#    based on server setup.
 #
 #  - server
 #    Uses the Bukkit API to change names.
+#    Default fallback option.
 #
 #  - essentials
 #    Uses the Essentials API to change names.
@@ -20,19 +24,77 @@ prefix: '&8[&dNameColor&8] &f'
 #    may not work properly without this mode.
 #
 mode: auto
-# +----- Locales -----+
+
+# Default name color:
+# Proper format:
+# &<color code> for Minecraft codes
+# #<rgb> for RGB codes
+default-color: '&f'
+
+# +----- Messages -----+
 # Note: prefix is used before all messages.
-# Help message:
-help:
-  - '&fUsage: &7/namecolor <color> <username> &f.'
+# Compatible with '&' color codes.
+
+# NameColor help message:
+namecolor-help:
+  - '&8+----[&dNameColor&8]----+'
+  - '&fUsage: &7/namecolor <color> <option1> <option2>&f.'
+  - '&fAny combinations of the following options can be used:'
+  - '&fbold, underline, italics, magic, strike.'
+  - '&fIf changing another players name, add their username to the end.'
+  - '&fRGB colors supported, formatted #<RGB>.'
+
+# Nickname help message:
+nickname-help:
+  - '&8+----[&dNameColor&8]----+'
+  - '&fUsage: &7/nick <nick> <username>&f.'
   - '&f<username> may be blank, RGB colors supported.'
+  - '&fNote: Enter RGB codes as &#<RGB>.'
+
+# Whois help message: 
+whois-help: '&fUsage: &7/whois <display name>'
+  
 # Not enough args message:
-insufficient-args: '&fInsufficient arguments'
-# Invalid player message"
+insufficient-args: '&fInsufficient arguments.'
+
+# Invalid player message:
 invalid-player: '&fCannot find that player!'
+
 # No permission message:
 no-perms: '&fYou don''t have permission!'
+
 # Player's name has been set message:
 # %display-name% will be replaced with
 # the user's new display name.
-name-set: '&fYour display name has been set to %display-name%.'
+name-set: '&fYour display name has been set to %display-name%&f.'
+
+# Other player's name changed message:
+# %display-name% will be replaced with
+# the subject's new display name.
+# %username% will be replaced with
+# the subject's username.
+name-set-other: '&f%username%''s display name has been set to %display-name%&f.'
+
+# Whois command message for valid player
+# %display-name% will be replaced with the
+# display name without colors.
+# %username% will be replaced with the proper username.
+whois-message: '&7%display-name%''s &fusername is &7%username%&f.'
+
+# Invalid args message for /namecolor:
+invalid-args-color: '&fInvalid arguments. Type &7/namecolor help &ffor usage.'
+
+# Invalid args message for /nick:
+invalid-args-nick: '&fInvalid arguments. Type &7/nick help &ffor usage.'
+
+# Invalid args message for /whois
+invalid-args-whois: '&fInvalid arguments. Type &7/whois help &ffor usage.'
+
+# Invalid command usage message for /namecolor:
+invalid-cmd-color: '&fInvalid command usage! Type &7/namecolor help &ffor usage.'
+
+# Invalid command usage message for /nick:
+invalid-cmd-nick: '&fInvalid command usage! Type &7/nick help &ffor usage.'
+
+# Invalid color in /namecolor
+invalid-color: '&fInvalid color!'
