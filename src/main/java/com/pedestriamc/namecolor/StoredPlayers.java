@@ -6,21 +6,23 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class StoredPlayers {
+public final class StoredPlayers {
 
     public static void saveStoredPlayer(StoredPlayer storedPlayer){
         FileConfiguration config = NameColor.getInstance().getPlayersConfig();
         if(storedPlayer != null){
             config.set("players." + storedPlayer.getUuid() + ".color", null);
             config.set("players." + storedPlayer.getUuid() + ".nick", null);
-            if(storedPlayer.getType() == StoredPlayer.Type.RGB_COLOR){
-                config.set("players." + storedPlayer.getUuid() + ".color", storedPlayer.getColor());
-            }
-            if(storedPlayer.getType() == StoredPlayer.Type.CHAT_COLOR){
-                config.set("players." + storedPlayer.getUuid() + ".color", storedPlayer.getChatColor().toString());
-            }
-            if(storedPlayer.getType() == StoredPlayer.Type.NICKNAME){
-                config.set("players." + storedPlayer.getUuid() + ".nick", storedPlayer.getNickname());
+            switch(storedPlayer.getType()){
+                case RGB_COLOR:
+                    config.set("players." + storedPlayer.getUuid() + ".color", storedPlayer.getColor());
+                    break;
+                case CHAT_COLOR:
+                    config.set("players." + storedPlayer.getUuid() + ".color", storedPlayer.getChatColor().toString());
+                    break;
+                case NICKNAME:
+                    config.set("players." + storedPlayer.getUuid() + ".nick", storedPlayer.getNickname());
+                    break;
             }
             NameColor.getInstance().savePlayersConfig();
         }
@@ -32,7 +34,6 @@ public class StoredPlayers {
         String playerUUID = player.getUniqueId().toString();
         String colorPath = "players." + playerUUID + ".color";
         String nickPath = "players." + playerUUID + ".nick";
-
         if (config.contains(colorPath)) {
             String color = config.getString(colorPath);
             if (color != null) {
