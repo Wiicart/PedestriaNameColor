@@ -29,3 +29,4 @@ public class NameColorCommandTabCompleter implements TabCompleter {
     }
 
 }
+
