@@ -1,7 +1,7 @@
 package com.pedestriamc.namecolor.commands;
 
 import com.pedestriamc.namecolor.NameColor;
-import com.pedestriamc.namecolor.SetNameColor;
+import com.pedestriamc.namecolor.SetName;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -10,76 +10,103 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+
 public class NameColorCommand implements CommandExecutor {
-    static String prefix = ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()); //https://www.youtube.com/watch?v=qthBRLx7zUA
-    static final String[] colors = new String[]{"BLACK", "DARKBLUE", "DARKGREEN", "DARKAQUA", "DARKRED", "DARKPURPLE", "GOLD", "GRAY", "DARKGRAY", "BLUE", "GREEN", "AQUA", "RED", "LIGHTPURPLE", "YELLOW", "WHITE"};
-    static final ChatColor[] chatColors = new ChatColor[]{ChatColor.BLACK, ChatColor.DARK_BLUE, ChatColor.DARK_GREEN, ChatColor.DARK_AQUA, ChatColor.DARK_RED, ChatColor.DARK_PURPLE, ChatColor.GOLD, ChatColor.GRAY, ChatColor.DARK_GRAY, ChatColor.BLUE, ChatColor.GREEN, ChatColor.AQUA, ChatColor.RED, ChatColor.LIGHT_PURPLE, ChatColor.YELLOW, ChatColor.WHITE};
-    private Player selectedPlayer;
+
+    private final String[] colors = new String[]{"BLACK", "DARKBLUE", "DARKGREEN", "DARKAQUA", "DARKRED", "DARKPURPLE", "GOLD", "GRAY", "DARKGRAY", "BLUE", "GREEN", "AQUA", "RED", "LIGHTPURPLE", "YELLOW", "WHITE"};
+    private final ChatColor[] chatColors = new ChatColor[]{ChatColor.BLACK, ChatColor.DARK_BLUE, ChatColor.DARK_GREEN, ChatColor.DARK_AQUA, ChatColor.DARK_RED, ChatColor.DARK_PURPLE, ChatColor.GOLD, ChatColor.GRAY, ChatColor.DARK_GRAY, ChatColor.BLUE, ChatColor.GREEN, ChatColor.AQUA, ChatColor.RED, ChatColor.LIGHT_PURPLE, ChatColor.YELLOW, ChatColor.WHITE};
     private FileConfiguration config = NameColor.getInstance().getConfigFile();
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(args.length > 1 && !sender.hasPermission("namecolor.set.other")){
-            sender.sendMessage(prefix + "You don't have permission!");
-            return true;
-        }
-        if (sender.hasPermission("namecolor.set")) {
-            int pos = -1;
-            args[0] = args[0].toUpperCase();
+        Player selectedPlayer;
+        boolean setOther = false;
+        StringBuilder color = new StringBuilder();
+        //Check if command is invalid or player does not have permission
+        if(sender instanceof Player){
+            //Default selectedPlayer is sender
+            selectedPlayer = (Player) sender;
+            //Check for permissions
+            if(!sender.hasPermission("namecolor.set") && !sender.hasPermission("namecolor.*")){
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("no-perms")));
+                return true;
+            }
+            //Check if args == 0
+            if(args.length == 0){
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("insufficient-args")));
+                return true;
+            }
             if (args[0].equals("HELP")) {
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getConfigFile().getString("help")));
+                for(String msgs : NameColor.getInstance().getConfigFile().getStringList("namecolor-help")){
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msgs));
+                }
                 return true;
             }
-            if (sender instanceof Player) {
-                if (args.length == 2) {
-                    if (Bukkit.getPlayer(args[1]) != null) {
-                        selectedPlayer = Bukkit.getPlayer(args[1]);
-                    } else {
-                        sender.sendMessage(prefix + "Can't find player");
-                        return true;
-                    }
-                } else if (args.length == 1) {
-                    selectedPlayer = (Player) sender;
-                } else {
-                    sender.sendMessage(prefix + "Invalid usage of command");
+            //Check if command is setting a different player's nickname
+            if(args.length >= 2 && Bukkit.getPlayer(args[args.length - 1]) != null){
+                if (!sender.hasPermission("namecolor.set.others") && !sender.hasPermission("namecolor.*")){
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("no-perms")));
                     return true;
+                }else{
+                    selectedPlayer = Bukkit.getPlayer(args[args.length - 1]);
+                    setOther = true;
                 }
             }
-            if (!(sender instanceof Player)) {
-                if (args.length != 2) {
-                    sender.sendMessage(prefix + "Invalid usage of command");
-                    return true;
-                }
-                if (Bukkit.getPlayer(args[1]) != null) {
-                    selectedPlayer = Bukkit.getPlayer(args[1]);
-                } else {
-                    sender.sendMessage(prefix + "Can't find player");
-                    return true;
-                }
-            }
-            for (int i = 0; i < colors.length; i++) {
-                if (args[0].equals(colors[i])) {
-                    pos = i;
-                }
-            }
-            if (pos < 0) {
-
-            }
-            if (pos > -1) {
-                SetNameColor.setColor(selectedPlayer, chatColors[pos], true);
-                sender.sendMessage(prefix + ChatColor.WHITE + "Name color for " + ChatColor.GRAY + selectedPlayer.getName() + ChatColor.WHITE + " set to " + chatColors[pos] + colors[pos]);
+        }else{ //Sender is server
+            if(args.length < 2){
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("insufficient-args")));
                 return true;
             }
-            if (args[0].matches("^#[a-fA-F0-9]{6}$")) {
-                SetNameColor.setColor(selectedPlayer, args[0], true);
-                sender.sendMessage(prefix + ChatColor.WHITE + "Name color for " + ChatColor.GRAY + selectedPlayer.getName() + ChatColor.WHITE + " set to " + ChatColor.of(args[0]) + args[0]);
+            if(Bukkit.getPlayer(args[args.length - 1]) != null){
+                selectedPlayer = Bukkit.getPlayer(args[args.length - 1]);
+            }else{
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("invalid-player")));
                 return true;
             }
-            sender.sendMessage(prefix + "Invalid usage of command");
-            return true;
 
         }
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("no-perms")));
+        //Checks done, time to process command
+        //Determine type of color code, and begin building string
+        if(Arrays.asList(colors).contains(args[0].toUpperCase())){ //https://stackoverflow.com/questions/1128723/how-do-i-determine-whether-an-array-contains-a-particular-value-in-java
+            color.append(chatColors[Arrays.asList(colors).indexOf(args[0].toUpperCase())]);
+        }else if(args[0].toUpperCase().matches(("^#[a-fA-F0-9]{6}$"))){
+            color.append("&");
+            color.append(args[0].toUpperCase());
+        }else{
+            //Invalid color as first arg
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("invalid-color")));
+        }
+        //process additional options such as bold, italics, etc.
+        for(int i = 1; i<args.length; i++){
+            switch(args[i].toUpperCase()){
+                case "BOLD":
+                    color.append("&l");
+                    break;
+                case "UNDERLINE":
+                    color.append("&n");
+                    break;
+                case "ITALICS":
+                    color.append("&o");
+                    break;
+                case "MAGIC":
+                    color.append("&k");
+                    break;
+                case "STRIKE":
+                    color.append("&m");
+                    break;
+                case "ITALIC":
+                    color.append("&o");
+                    break;
+                default:
+                    break;
+                }
+            }
+        color.append(selectedPlayer.getName());
+        SetName.setNick(color.toString(), selectedPlayer, true);
+        if(!sender.equals(selectedPlayer)){
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + NameColor.getInstance().processSenderPlaceholders(selectedPlayer));
+        }
+        selectedPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + NameColor.getInstance().processPlaceholders(selectedPlayer));
         return true;
     }
-
 }
