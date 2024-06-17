@@ -16,11 +16,10 @@ public class NameColorCommand implements CommandExecutor {
 
     private final String[] colors = new String[]{"BLACK", "DARKBLUE", "DARKGREEN", "DARKAQUA", "DARKRED", "DARKPURPLE", "GOLD", "GRAY", "DARKGRAY", "BLUE", "GREEN", "AQUA", "RED", "LIGHTPURPLE", "YELLOW", "WHITE"};
     private final ChatColor[] chatColors = new ChatColor[]{ChatColor.BLACK, ChatColor.DARK_BLUE, ChatColor.DARK_GREEN, ChatColor.DARK_AQUA, ChatColor.DARK_RED, ChatColor.DARK_PURPLE, ChatColor.GOLD, ChatColor.GRAY, ChatColor.DARK_GRAY, ChatColor.BLUE, ChatColor.GREEN, ChatColor.AQUA, ChatColor.RED, ChatColor.LIGHT_PURPLE, ChatColor.YELLOW, ChatColor.WHITE};
-    private FileConfiguration config = NameColor.getInstance().getConfigFile();
+    private final FileConfiguration config = NameColor.getInstance().getConfigFile();
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player selectedPlayer;
-        boolean setOther = false;
         StringBuilder color = new StringBuilder();
         //Check if command is invalid or player does not have permission
         if(sender instanceof Player){
@@ -36,7 +35,7 @@ public class NameColorCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("insufficient-args")));
                 return true;
             }
-            if (args[0].equals("HELP")) {
+            if (args[0].equalsIgnoreCase("HELP")) {
                 for(String msgs : NameColor.getInstance().getConfigFile().getStringList("namecolor-help")){
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msgs));
                 }
@@ -49,7 +48,6 @@ public class NameColorCommand implements CommandExecutor {
                     return true;
                 }else{
                     selectedPlayer = Bukkit.getPlayer(args[args.length - 1]);
-                    setOther = true;
                 }
             }
         }else{ //Sender is server
@@ -63,7 +61,6 @@ public class NameColorCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("invalid-player")));
                 return true;
             }
-
         }
         //Checks done, time to process command
         //Determine type of color code, and begin building string
