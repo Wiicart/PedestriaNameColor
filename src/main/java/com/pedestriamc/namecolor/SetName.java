@@ -1,0 +1,134 @@
+package com.pedestriamc.namecolor;
+
+import com.earth2me.essentials.Essentials;
+import com.earth2me.essentials.User;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public final class SetName {
+    /*
+    Class to actual update names, and optionally save them.
+    both setColor methods are not used anymore by NameColorCommand.java and NicknameCommand.java, though
+    JoinListener.java may still use the methods.
+     */
+    private static boolean useEssentials = false;
+    private static Essentials essentials;
+    private static Pattern pattern;
+    private static HashMap<String, String> playerDisplayNames;
+    private static java.util.List<String> displayNameList;
+    public static void initialize(){
+        if(NameColor.getInstance().getMode().equals("essentials")){
+            useEssentials = true;
+            essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+        }
+        pattern = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
+        playerDisplayNames = new HashMap<>();
+        displayNameList = new ArrayList<>();
+    }
+    //ChatColor mode (old)
+    public static void setColor(Player player, ChatColor color, boolean save){
+        if(useEssentials){
+            User user = essentials.getUser(player.getUniqueId());
+            StoredPlayers.saveStoredPlayer(new StoredPlayer(player, color));
+            player.setDisplayName(color + player.getName());
+            user.setNickname(color + player.getName());
+        }else{
+            player.setDisplayName(color + player.getName());
+        }
+        if(save){
+            StoredPlayers.saveStoredPlayer(new StoredPlayer(player, color));
+        }
+        addPlayer(player);
+    }
+    //RGB mode (old)
+    public static void setColor(Player player, String color, boolean save){
+        if(color.charAt(0) == '#'){
+            if(useEssentials){
+                Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+                User user = essentials.getUser(player.getUniqueId());
+                player.setDisplayName(ChatColor.of(color) + player.getName());
+                user.setNickname(ChatColor.of(color) + player.getName());
+            }else{
+                player.setDisplayName(ChatColor.of(color) + player.getName());
+                player.setPlayerListName(ChatColor.of(color) + player.getName());
+            }
+            if(save){
+                StoredPlayers.saveStoredPlayer(new StoredPlayer(player, color, false));
+            }
+        }else{
+            if(useEssentials){
+                Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+                User user = essentials.getUser(player.getUniqueId());
+                user.setNickname(ChatColor.translateAlternateColorCodes('&',color) + player.getName());
+            }else{
+                player.setDisplayName(ChatColor.translateAlternateColorCodes('&',color) + player.getName());
+            }
+        }
+        addPlayer(player);
+    }
+    public static void setNick(String nick, Player player, boolean save){
+        Matcher matcher = pattern.matcher(nick);
+        while(matcher.find()){ //https://stackoverflow.com/questions/15130309/how-to-use-regex-in-string-contains-method-in-java
+            //https://stackoverflow.com/questions/237061/using-regular-expressions-to-extract-a-value-in-java
+            String hexColor = matcher.group().substring(1).toUpperCase();
+            ChatColor color = ChatColor.of(new Color(Integer.parseInt(hexColor.substring(1), 16)));
+            nick = nick.replace(matcher.group(), color.toString());
+        }
+        nick += "&f&r";
+        nick = ChatColor.translateAlternateColorCodes('&', nick);
+        if(useEssentials){
+            //nick = ChatColor.translateAlternateColorCodes('&', nick);
+            User user = essentials.getUser(player.getUniqueId());
+            player.setDisplayName(ChatColor.translateAlternateColorCodes('&', nick));
+            user.setNickname(nick);
+
+        }else{
+            player.setDisplayName(ChatColor.translateAlternateColorCodes('&', nick));
+            //player.setPlayerListName();
+        }
+        if(save){
+            StoredPlayers.saveStoredPlayer(new StoredPlayer(player, nick,true));
+            addPlayer(player);
+        }
+    }
+    //Display name hashmap getter, setter methods
+    /*
+    fix
+     */
+    public static void addPlayer(Player player){
+        if(playerDisplayNames.containsValue(player.getName())){
+            displayNameList.remove(getPlayerDisplayNames());
+            playerDisplayNames.remove(player.getName());
+        }
+        playerDisplayNames.put(ChatColor.stripColor(player.getDisplayName()), player.getName());
+        displayNameList.add(ChatColor.stripColor(player.getDisplayName()));
+    }
+    @Nullable
+    public static String getPlayer(String displayName){
+        if(playerDisplayNames.containsKey(displayName)){
+            return playerDisplayNames.get(displayName);
+        }
+        return null;
+    }
+    public static void removePlayer(Player player){
+        if(playerDisplayNames.containsValue(player.getName())){
+            playerDisplayNames.remove(ChatColor.stripColor(player.getDisplayName()));
+        }
+        displayNameList.remove(ChatColor.stripColor(player.getDisplayName()));
+    }
+    public static HashMap<String, String> getPlayerDisplayNames(){
+        return playerDisplayNames;
+    }
+    public static List<String> getDisplayNameList(){
+        return displayNameList;
+    }
+}
