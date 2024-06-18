@@ -37,10 +37,14 @@ public final class SetName {
     //ChatColor mode (old)
     public static void setColor(Player player, ChatColor color, boolean save){
         if(useEssentials){
-            User user = essentials.getUser(player.getUniqueId());
-            StoredPlayers.saveStoredPlayer(new StoredPlayer(player, color));
-            player.setDisplayName(color + player.getName());
-            user.setNickname(color + player.getName());
+            try{
+                User user = essentials.getUser(player.getUniqueId());
+                StoredPlayers.saveStoredPlayer(new StoredPlayer(player, color));
+                player.setDisplayName(color + player.getName());
+                user.setNickname(color + player.getName());
+            }catch(NullPointerException a){
+                Bukkit.getLogger().info("[NameColor] Essentials unable to find user.");
+            }
         }else{
             player.setDisplayName(color + player.getName());
         }
@@ -53,10 +57,13 @@ public final class SetName {
     public static void setColor(Player player, String color, boolean save){
         if(color.charAt(0) == '#'){
             if(useEssentials){
-                Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-                User user = essentials.getUser(player.getUniqueId());
-                player.setDisplayName(ChatColor.of(color) + player.getName());
-                user.setNickname(ChatColor.of(color) + player.getName());
+                try{
+                    User user = essentials.getUser(player.getUniqueId());
+                    player.setDisplayName(ChatColor.of(color) + player.getName());
+                    user.setNickname(ChatColor.of(color) + player.getName());
+                }catch(NullPointerException a){
+                    Bukkit.getLogger().info("[NameColor] Essentials unable to find user.");
+                }
             }else{
                 player.setDisplayName(ChatColor.of(color) + player.getName());
                 player.setPlayerListName(ChatColor.of(color) + player.getName());
@@ -66,15 +73,19 @@ public final class SetName {
             }
         }else{
             if(useEssentials){
-                Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-                User user = essentials.getUser(player.getUniqueId());
-                user.setNickname(ChatColor.translateAlternateColorCodes('&',color) + player.getName());
+                try{
+                    User user = essentials.getUser(player.getUniqueId());
+                    user.setNickname(ChatColor.translateAlternateColorCodes('&',color) + player.getName());
+                }catch(NullPointerException a){
+                    Bukkit.getLogger().info("[NameColor] Essentials unable to find user.");
+                }
             }else{
                 player.setDisplayName(ChatColor.translateAlternateColorCodes('&',color) + player.getName());
             }
         }
         addPlayer(player);
     }
+    //SetNick method used by both NameColorCommand.java and NicknameCommand.java
     public static void setNick(String nick, Player player, boolean save){
         Matcher matcher = pattern.matcher(nick);
         while(matcher.find()){ //https://stackoverflow.com/questions/15130309/how-to-use-regex-in-string-contains-method-in-java
@@ -106,8 +117,7 @@ public final class SetName {
      */
     public static void addPlayer(Player player){
         if(playerDisplayNames.containsValue(player.getName())){
-            displayNameList.remove(getPlayerDisplayNames());
-            playerDisplayNames.remove(player.getName());
+            removePlayer(player);
         }
         playerDisplayNames.put(ChatColor.stripColor(player.getDisplayName()), player.getName());
         displayNameList.add(ChatColor.stripColor(player.getDisplayName()));
