@@ -1,4 +1,4 @@
-package com.pedestriamc.namecolor;
+ckage com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
@@ -10,6 +10,7 @@ import com.pedestriamc.namecolor.listeners.LeaveListener;
 import com.pedestriamc.namecolor.tabcompleters.NameColorCommandTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.NicknameTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.WhoIsTabCompleter;
+import com.tchristofferson.configupdater.ConfigUpdater;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -40,6 +41,17 @@ public final class NameColor extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
         setupPlayersFile();
+        //Config updater using https://github.com/tchristofferson/Config-Updater
+        File configFile = new File(getDataFolder(), "config.yml");
+        if(configFile.exists()){
+            Bukkit.getLogger().info("[NameColor] Configuration found.");
+            try{
+                ConfigUpdater.update(this,"config.yml", configFile);
+            }catch(IOException e){
+                Bukkit.getLogger().info("[NameColor] Updating config failed.");
+                e.printStackTrace();
+            }
+        }
         if(config.getString("default-color") != null){
             defaultColor = config.getString("default-color");
         }else {
