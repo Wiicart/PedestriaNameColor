@@ -2,15 +2,14 @@ package com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,16 +22,14 @@ public final class SetName {
     private static boolean useEssentials = false;
     private static Essentials essentials;
     private static Pattern pattern;
-    private static HashMap<String, String> playerDisplayNames;
-    private static java.util.List<String> displayNameList;
+    private static BiMap<String, String> playerDisplayNames; //https://stackoverflow.com/questions/10699492/bi-directional-map-in-java
     public static void initialize(){
         if(NameColor.getInstance().getMode().equals("essentials")){
             useEssentials = true;
             essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         }
         pattern = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
-        playerDisplayNames = new HashMap<>();
-        displayNameList = new ArrayList<>();
+        playerDisplayNames = HashBiMap.create();
     }
     //ChatColor mode (old)
     public static void setColor(Player player, ChatColor color, boolean save){
@@ -115,30 +112,16 @@ public final class SetName {
     /*
     fix
      */
-    public static void addPlayer(Player player){
-        if(playerDisplayNames.containsValue(player.getName())){
-            removePlayer(player);
-        }
-        playerDisplayNames.put(ChatColor.stripColor(player.getDisplayName()), player.getName());
-        displayNameList.add(ChatColor.stripColor(player.getDisplayName()));
-    }
     @Nullable
     public static String getPlayer(String displayName){
-        if(playerDisplayNames.containsKey(displayName)){
-            return playerDisplayNames.get(displayName);
-        }
-        return null;
+        return playerDisplayNames.getKey(displayName.toUpperCase());
+    }
+    public static void addPlayer(Player player){
+        removePlayer(player);
+        playerDisplayNames.put(player.getName().toUpperCase(), ChatColor.stripColor(player.getDisplayName()).toUpperCase());
     }
     public static void removePlayer(Player player){
-        if(playerDisplayNames.containsValue(player.getName())){
-            playerDisplayNames.remove(ChatColor.stripColor(player.getDisplayName()));
-        }
-        displayNameList.remove(ChatColor.stripColor(player.getDisplayName()));
-    }
-    public static HashMap<String, String> getPlayerDisplayNames(){
-        return playerDisplayNames;
-    }
-    public static List<String> getDisplayNameList(){
-        return displayNameList;
+        playerDisplayNames.remove(player.getName().toUpperCase());
     }
 }
+
