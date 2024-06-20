@@ -11,6 +11,7 @@ import java.util.List;
 //https://bukkit.org/threads/easy-no-api-setting-up-custom-tab-completion.299956/
 public class NameColorCommandTabCompleter implements TabCompleter {
     static final List<String> colorList = Arrays.asList("black", "darkblue", "darkgreen", "darkaqua", "darkred", "darkpurple", "gold", "gray", "darkgray", "blue", "green", "aqua", "red", "lightpurple", "yellow", "white");
+    static final List<String> styleList = Arrays.asList("bold", "underline", "italic", "magic", "strike");
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){
@@ -20,13 +21,11 @@ public class NameColorCommandTabCompleter implements TabCompleter {
             if(args.length == 1 && !args[0].equals("#")){
                 return colorList;
             }
-            if(args.length == 2){
-
+            if(args.length > 2){
+                return styleList;
             }
-
         }
         return null;
     }
 
 }
-
