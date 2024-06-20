@@ -2,9 +2,9 @@ package com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import net.md_5.bungee.api.ChatColor;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -22,14 +22,14 @@ public final class SetName {
     private static boolean useEssentials = false;
     private static Essentials essentials;
     private static Pattern pattern;
-    private static BiMap<String, String> playerDisplayNames; //https://stackoverflow.com/questions/10699492/bi-directional-map-in-java
+    private static BidiMap<String, String> playerDisplayNames; //https://stackoverflow.com/questions/5415056/bidimap-synchronization
     public static void initialize(){
         if(NameColor.getInstance().getMode().equals("essentials")){
             useEssentials = true;
             essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         }
         pattern = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
-        playerDisplayNames = HashBiMap.create();
+        playerDisplayNames = new DualHashBidiMap<String, String>();
     }
     //ChatColor mode (old)
     public static void setColor(Player player, ChatColor color, boolean save){
@@ -124,4 +124,5 @@ public final class SetName {
         playerDisplayNames.remove(player.getName().toUpperCase());
     }
 }
+
 
