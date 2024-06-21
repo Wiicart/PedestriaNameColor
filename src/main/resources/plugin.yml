@@ -2,7 +2,7 @@ name: NameColor
 version: '${project.version}'
 main: com.pedestriamc.namecolor.NameColor
 api-version: 1.16
-prefix: '[NameColor]'
+prefix: 'NameColor'
 author: wiicart
 description: A plugin to change user's name colors
 website: 'https://pedestriamc.com'
@@ -16,6 +16,9 @@ commands:
   nickname:
     description: "Changes a player's nickname"
     usage: /nickname <nickname>
+  whois:
+    description: "Determines who has what nickname"
+    usage: /whois <display name>
 permissions:
   namecolor.*:
     description: "All NameColor permissions."
@@ -33,8 +36,11 @@ permissions:
     default: op
   namecolor.nick:
     description: "Allows players to change their own nickname"
-    default: op
+    default: true
   namecolor.nick.others:
     description: "Allows players to change other player's nickname"
     default: op
+  namecolor.whois:
+    description: "Allows use of the /whois command"
+    default: true
 
