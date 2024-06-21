@@ -16,20 +16,21 @@ import java.util.regex.Pattern;
 public final class SetName {
     /*
     Class to actual update names, and optionally save them.
-    both setColor methods are not used anymore by NameColorCommand.java and NicknameCommand.java, though
+    both setColor methods are not used any more by NameColorCommand.java and NicknameCommand.java, though
     JoinListener.java may still use the methods.
+    Includes a hashmap of all online players and their display names
      */
     private static boolean useEssentials = false;
     private static Essentials essentials;
     private static Pattern pattern;
-    private static BidiMap<String, String> playerDisplayNames; //https://stackoverflow.com/questions/5415056/bidimap-synchronization
+    private static BidiMap<Player, String> playerDisplayNames; //https://stackoverflow.com/questions/5415056/bidimap-synchronization
     public static void initialize(){
         if(NameColor.getInstance().getMode().equals("essentials")){
             useEssentials = true;
             essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         }
         pattern = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
-        playerDisplayNames = new DualHashBidiMap<String, String>();
+        playerDisplayNames = new DualHashBidiMap<>();
     }
     //ChatColor mode (old)
     public static void setColor(Player player, ChatColor color, boolean save){
@@ -84,44 +85,51 @@ public final class SetName {
     }
     //SetNick method used by both NameColorCommand.java and NicknameCommand.java
     public static void setNick(String nick, Player player, boolean save){
-        Matcher matcher = pattern.matcher(nick);
+        Matcher matcher = pattern.matcher(nick);//processing RGB code
         while(matcher.find()){ //https://stackoverflow.com/questions/15130309/how-to-use-regex-in-string-contains-method-in-java
             //https://stackoverflow.com/questions/237061/using-regular-expressions-to-extract-a-value-in-java
             String hexColor = matcher.group().substring(1).toUpperCase();
             ChatColor color = ChatColor.of(new Color(Integer.parseInt(hexColor.substring(1), 16)));
+            //replace occurrence of RGB code to ChatColor
             nick = nick.replace(matcher.group(), color.toString());
         }
-        nick += "&f&r";
+        //Ensure that name color codes don't extend beyond name
+        nick += "&r";
         nick = ChatColor.translateAlternateColorCodes('&', nick);
         if(useEssentials){
-            //nick = ChatColor.translateAlternateColorCodes('&', nick);
             User user = essentials.getUser(player.getUniqueId());
             player.setDisplayName(ChatColor.translateAlternateColorCodes('&', nick));
             user.setNickname(nick);
 
         }else{
             player.setDisplayName(ChatColor.translateAlternateColorCodes('&', nick));
-            //player.setPlayerListName();
+            //player.setPlayerListName(); - look into this later
         }
         if(save){
+            //Saving as new StoredPlayer
             StoredPlayers.saveStoredPlayer(new StoredPlayer(player, nick,true));
+            //Add to hashmap of online players
             addPlayer(player);
         }
     }
     //Display name hashmap getter, setter methods
-    /*
-    fix
-     */
+    //Data stored with Player object first, then displayName String
     @Nullable
+    //Gets a player's username from the hashmap
     public static String getPlayer(String displayName){
-        return playerDisplayNames.getKey(displayName.toUpperCase());
+        if(!playerDisplayNames.containsKey(displayName)){
+            return null;
+        }
+        return playerDisplayNames.getKey(displayName.toUpperCase()).getName();
     }
+    //Adds a username and display name to the hash map
     public static void addPlayer(Player player){
         removePlayer(player);
-        playerDisplayNames.put(player.getName().toUpperCase(), ChatColor.stripColor(player.getDisplayName()).toUpperCase());
+        playerDisplayNames.put(player, ChatColor.stripColor(player.getDisplayName()).toUpperCase());
     }
+    //Removes player and username from the hash map
     public static void removePlayer(Player player){
-        playerDisplayNames.remove(player.getName().toUpperCase());
+        playerDisplayNames.remove(player);
     }
 }
 
