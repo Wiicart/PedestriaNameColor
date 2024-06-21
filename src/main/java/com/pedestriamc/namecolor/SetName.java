@@ -117,7 +117,7 @@ public final class SetName {
     @Nullable
     //Gets a player's username from the hashmap
     public static String getPlayer(String displayName){
-        if(!playerDisplayNames.containsKey(displayName)){
+        if(!playerDisplayNames.containsValue(displayName.toUpperCase())){
             return null;
         }
         return playerDisplayNames.getKey(displayName.toUpperCase()).getName();
@@ -132,5 +132,4 @@ public final class SetName {
         playerDisplayNames.remove(player);
     }
 }
-
 
