@@ -43,3 +43,4 @@ public class WhoIsCommand implements CommandExecutor {
             return true;
         }
     }
+}
