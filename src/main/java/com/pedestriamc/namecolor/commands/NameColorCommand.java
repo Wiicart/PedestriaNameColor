@@ -71,7 +71,8 @@ public class NameColorCommand implements CommandExecutor {
             color.append(args[0].toUpperCase());
         }else{
             //Invalid color as first arg
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("invalid-color")));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("invalid-args-color")));
+            return true;
         }
         //process additional options such as bold, italics, etc.
         for(int i = 1; i<args.length; i++){
@@ -83,6 +84,7 @@ public class NameColorCommand implements CommandExecutor {
                     color.append("&n");
                     break;
                 case "ITALICS":
+                case "ITALIC":
                     color.append("&o");
                     break;
                 case "MAGIC":
@@ -90,9 +92,6 @@ public class NameColorCommand implements CommandExecutor {
                     break;
                 case "STRIKE":
                     color.append("&m");
-                    break;
-                case "ITALIC":
-                    color.append("&o");
                     break;
                 default:
                     break;
@@ -107,3 +106,4 @@ public class NameColorCommand implements CommandExecutor {
         return true;
     }
 }
+
