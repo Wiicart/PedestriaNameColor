@@ -1,4 +1,3 @@
-version: 1.3
 #-------------------------#
 #        NameColor        #
 #     pedestriamc.com     #
@@ -51,9 +50,9 @@ nickname-help:
   - '&f<username> may be blank, RGB colors supported.'
   - '&fNote: Enter RGB codes as &#<RGB>.'
 
-# Whois help message: 
+# Whois help message:
 whois-help: '&fUsage: &7/whois <display name>'
-  
+
 # Not enough args message:
 insufficient-args: '&fInsufficient arguments.'
 
@@ -66,7 +65,7 @@ no-perms: '&fYou don''t have permission!'
 # Player's name has been set message:
 # %display-name% will be replaced with
 # the user's new display name.
-name-set: '&fYour display name has been set to %display-name%&f.'
+name-set: '&fYour display name has been set to &f%display-name%&f.'
 
 # Other player's name changed message:
 # %display-name% will be replaced with
