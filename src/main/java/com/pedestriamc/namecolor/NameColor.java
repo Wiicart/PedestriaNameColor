@@ -1,4 +1,4 @@
-ckage com.pedestriamc.namecolor;
+package com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
@@ -7,6 +7,9 @@ import com.pedestriamc.namecolor.commands.NicknameCommand;
 import com.pedestriamc.namecolor.commands.WhoIsCommand;
 import com.pedestriamc.namecolor.listeners.JoinListener;
 import com.pedestriamc.namecolor.listeners.LeaveListener;
+import com.pedestriamc.namecolor.nms.OverheadName;
+import com.pedestriamc.namecolor.nms.Version_1_20_6;
+import com.pedestriamc.namecolor.nms.Version_1_21;
 import com.pedestriamc.namecolor.tabcompleters.NameColorCommandTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.NicknameTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.WhoIsTabCompleter;
@@ -34,6 +37,12 @@ public final class NameColor extends JavaPlugin {
     private String mode;
     private boolean notify;
     private String defaultColor;
+    private OverheadName overHeadName;
+    private boolean setOverHeadNames = true;
+    private String pluginVersion = "1.4";
+    /*
+    !! UPDATE VERSION NUMBER WITH EACH UPDATE !!
+     */
 
     @Override
     public void onEnable() {
@@ -41,29 +50,46 @@ public final class NameColor extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
         setupPlayersFile();
-        //Config updater using https://github.com/tchristofferson/Config-Updater
-        File configFile = new File(getDataFolder(), "config.yml");
-        if(configFile.exists()){
-            Bukkit.getLogger().info("[NameColor] Configuration found.");
-            try{
-                ConfigUpdater.update(this,"config.yml", configFile);
-            }catch(IOException e){
-                Bukkit.getLogger().info("[NameColor] Updating config failed.");
-                e.printStackTrace();
-            }
+        getModeFromConfig();
+        configSetup();
+        overHeadName = setOverHeadName();
+        if(overHeadName == null){
+            setOverHeadNames = false;
+            Bukkit.getLogger().info("[NameColor] NameColor overhead-names are not supported on this Minecraft version!");
+            Bukkit.getLogger().info("[NameColor] Check for updates that support your Minecraft version!");
+            Bukkit.getLogger().info("[NameColor] Enabling without overhead-name support.");
         }
-        if(config.getString("default-color") != null){
-            defaultColor = config.getString("default-color");
-        }else {
-            defaultColor = "&f";
-        }
-        this.getModeFromConfig();
         SetName.initialize();
         int pluginId = 22112;
         Metrics metrics = new Metrics(this, pluginId);
-        metrics.addCustomChart(new SimplePie("mode", () -> {
-            return getMode();
-        }));
+        metrics.addCustomChart(new SimplePie("mode", this::getMode));
+        registerClasses();
+        Messenger.initialize();
+        Bukkit.getLogger().info("[NameColor] NameColor version " + pluginVersion + " enabled.");
+    }
+
+    @Override
+    public void onDisable() {
+        // Plugin shutdown logic
+        this.savePlayersConfig();
+        Bukkit.getLogger().info("[NameColor] Disabled.");
+    }
+    /*
+    Private Methods
+     */
+    @Nullable
+    private OverheadName setOverHeadName(){
+        switch(Bukkit.getVersion()){
+            case "1.21":
+                return new Version_1_21();
+            case "1.20.6":
+                return new Version_1_20_6();
+            default:
+                //Unsupported Minecraft version
+                return null;
+        }
+    }
+    private void registerClasses(){
         this.getCommand("namecolor").setExecutor(new NameColorCommand());
         this.getCommand("nick").setExecutor(new NicknameCommand());
         this.getCommand("nickname").setExecutor(new NicknameCommand());
@@ -74,27 +100,6 @@ public final class NameColor extends JavaPlugin {
         this.getCommand("whois").setTabCompleter(new WhoIsTabCompleter());
         getServer().getPluginManager().registerEvents(new JoinListener(), this);
         getServer().getPluginManager().registerEvents(new LeaveListener(), this);
-        Bukkit.getLogger().info("[NameColor] Enabled");
-
-    }
-
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-        this.savePlayersConfig();
-        Bukkit.getLogger().info("NameColor disabled");
-    }
-    public static NameColor getInstance(){
-        return instance;
-    }
-    public FileConfiguration getConfigFile(){
-        return config;
-    }
-    public String getPrefix(){
-        return config.getString("prefix");
-    }
-    public String getMode(){
-        return mode;
     }
     private void setupPlayersFile() {
         playersFile = new File(getDataFolder(), "players.yml");
@@ -107,17 +112,6 @@ public final class NameColor extends JavaPlugin {
             }
         }
         playersConfig = YamlConfiguration.loadConfiguration(playersFile);
-    }
-
-    public FileConfiguration getPlayersConfig() {
-        return playersConfig;
-    }
-    public void savePlayersConfig() {
-        try {
-            playersConfig.save(playersFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     private void getModeFromConfig(){ //get mode from config file, consider if option set in config is viable
         if(config.getString("mode").equalsIgnoreCase("auto")){
@@ -146,6 +140,64 @@ public final class NameColor extends JavaPlugin {
             mode = "server";
         }
     }
+    private void configSetup(){
+        //Config updater using https://github.com/tchristofferson/Config-Updater
+        File configFile = new File(getDataFolder(), "config.yml");
+        if(configFile.exists()){
+            Bukkit.getLogger().info("[NameColor] Configuration found.");
+            try{
+                ConfigUpdater.update(this,"config.yml", configFile);
+            }catch(IOException e){
+                Bukkit.getLogger().info("[NameColor] Updating config failed.");
+                e.printStackTrace();
+            }
+        }
+        if(config.getString("default-color") != null){
+            defaultColor = config.getString("default-color");
+        }else {
+            defaultColor = "&f";
+        }
+    }
+    /*
+    Object getter methods
+     */
+    public static NameColor getInstance(){
+        return instance;
+    }
+    public OverheadName getOverheadName() {
+        return overHeadName;
+    }
+    public FileConfiguration getConfigFile(){
+        return config;
+    }
+    /*
+    Variable getter methods
+     */
+    public String getPrefix(){
+        return config.getString("prefix");
+    }
+    public String getMode(){
+        return mode;
+    }
+    public void savePlayersConfig() {
+        try {
+            playersConfig.save(playersFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public boolean notifyChange(){
+        return notify;
+    }
+    public String getDefaultColor(){
+        return defaultColor;
+    }
+    public boolean isSetOverHeadNames(){
+        return setOverHeadNames;
+    }
+    /*
+    Message processing methods, to be moved to Messenger.java.
+     */
     @Nullable
     public String processPlaceholders(Player player) { //processes display name placeholder for message sent to player that had display name changed
         String msg = config.getString("name-set");
@@ -180,11 +232,5 @@ public final class NameColor extends JavaPlugin {
             return ChatColor.translateAlternateColorCodes('&', msg);
         }
         return null;
-    }
-    public boolean notifyChange(){
-        return notify;
-    }
-    public String getDefaultColor(){
-        return defaultColor;
     }
 }
