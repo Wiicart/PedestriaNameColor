@@ -1,5 +1,6 @@
 package com.pedestriamc.namecolor.commands;
 
+import com.pedestriamc.namecolor.Messenger;
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.SetName;
 import net.md_5.bungee.api.ChatColor;
@@ -7,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -16,7 +16,6 @@ public class NameColorCommand implements CommandExecutor {
 
     private final String[] colors = new String[]{"BLACK", "DARKBLUE", "DARKGREEN", "DARKAQUA", "DARKRED", "DARKPURPLE", "GOLD", "GRAY", "DARKGRAY", "BLUE", "GREEN", "AQUA", "RED", "LIGHTPURPLE", "YELLOW", "WHITE"};
     private final ChatColor[] chatColors = new ChatColor[]{ChatColor.BLACK, ChatColor.DARK_BLUE, ChatColor.DARK_GREEN, ChatColor.DARK_AQUA, ChatColor.DARK_RED, ChatColor.DARK_PURPLE, ChatColor.GOLD, ChatColor.GRAY, ChatColor.DARK_GRAY, ChatColor.BLUE, ChatColor.GREEN, ChatColor.AQUA, ChatColor.RED, ChatColor.LIGHT_PURPLE, ChatColor.YELLOW, ChatColor.WHITE};
-    private final FileConfiguration config = NameColor.getInstance().getConfigFile();
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player selectedPlayer;
@@ -27,24 +26,22 @@ public class NameColorCommand implements CommandExecutor {
             selectedPlayer = (Player) sender;
             //Check for permissions
             if(!sender.hasPermission("namecolor.set") && !sender.hasPermission("namecolor.*")){
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("no-perms")));
+                Messenger.sendMessage(sender, Messenger.Message.NO_PERMS);
                 return true;
             }
             //Check if args == 0
             if(args.length == 0){
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("insufficient-args")));
+                Messenger.sendMessage(sender, Messenger.Message.INSUFFICIENT_ARGS);
                 return true;
             }
             if (args[0].equalsIgnoreCase("HELP")) {
-                for(String msgs : NameColor.getInstance().getConfigFile().getStringList("namecolor-help")){
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msgs));
-                }
+                Messenger.sendMessage(sender, Messenger.Message.NAMECOLOR_HELP);
                 return true;
             }
             //Check if command is setting a different player's nickname
             if(args.length >= 2 && Bukkit.getPlayer(args[args.length - 1]) != null){
                 if (!sender.hasPermission("namecolor.set.others") && !sender.hasPermission("namecolor.*")){
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("no-perms")));
+                    Messenger.sendMessage(sender, Messenger.Message.NO_PERMS);
                     return true;
                 }else{
                     selectedPlayer = Bukkit.getPlayer(args[args.length - 1]);
@@ -52,13 +49,13 @@ public class NameColorCommand implements CommandExecutor {
             }
         }else{ //Sender is server
             if(args.length < 2){
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("insufficient-args")));
+                Messenger.sendMessage(sender, Messenger.Message.INSUFFICIENT_ARGS);
                 return true;
             }
             if(Bukkit.getPlayer(args[args.length - 1]) != null){
                 selectedPlayer = Bukkit.getPlayer(args[args.length - 1]);
             }else{
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("invalid-player")));
+                Messenger.sendMessage(sender, Messenger.Message.INVALID_PLAYER);
                 return true;
             }
         }
@@ -71,7 +68,7 @@ public class NameColorCommand implements CommandExecutor {
             color.append(args[0].toUpperCase());
         }else{
             //Invalid color as first arg
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + ChatColor.translateAlternateColorCodes('&', config.getString("invalid-args-color")));
+            Messenger.sendMessage(sender, Messenger.Message.INVALID_ARGS_COLOR);
             return true;
         }
         //process additional options such as bold, italics, etc.
@@ -100,9 +97,11 @@ public class NameColorCommand implements CommandExecutor {
         color.append(selectedPlayer.getName());
         SetName.setNick(color.toString(), selectedPlayer, true);
         if(!sender.equals(selectedPlayer)){
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + NameColor.getInstance().processSenderPlaceholders(selectedPlayer));
+            Messenger.processPlaceholders(sender, Messenger.Message.NAME_SET_OTHER, selectedPlayer);
+            //sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + NameColor.getInstance().processSenderPlaceholders(selectedPlayer));
         }
-        selectedPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + NameColor.getInstance().processPlaceholders(selectedPlayer));
+        Messenger.processPlaceholders(selectedPlayer, Messenger.Message.NAME_SET, selectedPlayer);
+        //selectedPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + NameColor.getInstance().processPlaceholders(selectedPlayer));
         return true;
     }
 }
