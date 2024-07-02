@@ -1,7 +1,7 @@
 package com.pedestriamc.namecolor;
 
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 public final class Messenger {
     //Class to send messages based on config, w/prefix
     public enum Message{
-        NAMECOLOR_HELP, NICKNAME_HELP, WHOIS_HELP, INSUFFICIENT_ARGS, INVALID_PLAYER, NO_PERMS, NAME_SET, NAME_SET_OTHER, WHOIS_MESSAGE, INVALID_ARGS_COLOR, INVALID_ARGS_NICK, INVALID_ARGS_WHOIS, INVALID_CMD_COLOR, INVALID_CMD_NICK, INVALID_COLOR
+        NAMECOLOR_HELP, NICKNAME_HELP, WHOIS_HELP, INSUFFICIENT_ARGS, INVALID_PLAYER, NO_PERMS, NAME_SET, NAME_SET_OTHER, WHOIS_MESSAGE, INVALID_ARGS_COLOR, INVALID_ARGS_NICK, INVALID_ARGS_WHOIS, INVALID_CMD_COLOR, INVALID_CMD_NICK, INVALID_COLOR, NICK_TOO_LONG, USERNAME_NICK_PROHIBITED
     }
     private static final HashMap<Message, Object> messageStringHashMap = new HashMap<>();
     private static String prefix;
@@ -45,6 +45,8 @@ public final class Messenger {
         defaults.put(Message.INVALID_CMD_COLOR, "&fInvalid command usage! Type &7/namecolor help &ffor usage.");
         defaults.put(Message.INVALID_CMD_NICK, "&fInvalid command usage! Type &7/nick help &ffor usage.");
         defaults.put(Message.INVALID_COLOR, "&fInvalid color!");
+        defaults.put(Message.NICK_TOO_LONG, "&fYour nickname is too long!");
+        defaults.put(Message.USERNAME_NICK_PROHIBITED, "&fYour nickname cannot be the username of another player.");
     }
     //Initialize HashMap
     public static void initialize(){
@@ -68,8 +70,7 @@ public final class Messenger {
         }
     }
     public static void sendMessage(CommandSender sender, Message message){
-        if(messageStringHashMap.get(message) instanceof String[]){
-            String[] msg = (String[]) messageStringHashMap.get(message);
+        if(messageStringHashMap.get(message) instanceof String[] msg){
             for(String str : msg){
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
             }
