@@ -30,6 +30,13 @@ mode: auto
 # #<rgb> for RGB codes
 default-color: '&f'
 
+# +----- Nickname Settings -----+
+# Maximum nickname length, ignoring color codes.
+max-nickname-length: 16
+
+# Allow nicknames that are the username of a player?
+allow-username-nicknames: false
+
 # +----- Messages -----+
 # Note: prefix is used before all messages.
 # Compatible with '&' color codes.
@@ -97,3 +104,9 @@ invalid-cmd-nick: '&fInvalid command usage! Type &7/nick help &ffor usage.'
 
 # Invalid color in /namecolor
 invalid-color: '&fInvalid color!'
+
+# Nickname too long
+nick-too-long: '&fYour nickname is too long!'
+
+# Nickname that is the username of another player not allowed
+username-nick-prohibited: '&fYour nickname cannot be the same as the username of another player.'
