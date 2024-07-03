@@ -37,6 +37,11 @@ public class NicknameCommand implements CommandExecutor {
                 return true;
             }
             if(sender instanceof Player){
+                if (args[0].equalsIgnoreCase("RESET")) {
+                    SetName.setNick(sender.getName(),(Player) sender,true);
+                    Messenger.processPlaceholders(sender, Messenger.Message.NAME_SET, (Player) sender);
+                    return true;
+                }
                 selectedPlayer = (Player) sender;
                 nick = args[0];
                 if(ChatColor.stripColor(nick).length() > NameColor.getInstance().nickLengthLimit()){
@@ -45,6 +50,7 @@ public class NicknameCommand implements CommandExecutor {
                 }
                 if(isDuplicateNickname(nick, (Player) sender)){
                     Messenger.sendMessage(sender, Messenger.Message.USERNAME_NICK_PROHIBITED);
+                    return true;
                 }
                 SetName.setNick(nick, selectedPlayer,true);
                 Messenger.processPlaceholders(selectedPlayer, Messenger.Message.NAME_SET, selectedPlayer);
@@ -61,12 +67,19 @@ public class NicknameCommand implements CommandExecutor {
         }
         selectedPlayer = Bukkit.getPlayer(args[1]);
         if(selectedPlayer != null){
+            if (args[0].equalsIgnoreCase("RESET")) {
+                SetName.setNick(selectedPlayer.getName(), selectedPlayer,true);
+                Messenger.processPlaceholders(selectedPlayer, Messenger.Message.NAME_SET, (Player) sender);
+                Messenger.processPlaceholders(sender, Messenger.Message.NAME_SET_OTHER, (Player) sender);
+                return true;
+            }
             if(ChatColor.stripColor(args[0]).length() > NameColor.getInstance().nickLengthLimit()){
                 Messenger.sendMessage(sender, Messenger.Message.NICK_TOO_LONG);
                 return true;
             }
             if(isDuplicateNickname(args[0], selectedPlayer)){
                 Messenger.sendMessage(sender, Messenger.Message.USERNAME_NICK_PROHIBITED);
+                return true;
             }
             SetName.setNick(args[0], Bukkit.getPlayer(args[1]), true);
             if(!sender.equals(selectedPlayer)){
