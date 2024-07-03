@@ -7,17 +7,16 @@ import com.pedestriamc.namecolor.commands.NicknameCommand;
 import com.pedestriamc.namecolor.commands.WhoIsCommand;
 import com.pedestriamc.namecolor.listeners.JoinListener;
 import com.pedestriamc.namecolor.listeners.LeaveListener;
-import com.pedestriamc.namecolor.nms.OverheadName;
-import com.pedestriamc.namecolor.nms.Version_1_20_6;
+import com.pedestriamc.namecolor.nms.PlayerNameTagManager;
 import com.pedestriamc.namecolor.nms.Version_1_21;
 import com.pedestriamc.namecolor.tabcompleters.NameColorCommandTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.NicknameTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.WhoIsTabCompleter;
 import com.tchristofferson.configupdater.ConfigUpdater;
+import net.md_5.bungee.api.ChatColor;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -37,9 +36,12 @@ public final class NameColor extends JavaPlugin {
     private String mode;
     private boolean notify;
     private String defaultColor;
-    private OverheadName overHeadName;
+    private PlayerNameTagManager overHeadNameTagManager;
     private boolean setOverHeadNames = true;
+    private boolean allowUserNick = false;
+    private int maxNicknameLength = 0;
     private String pluginVersion = "1.4";
+    private final String distributor = "spigot";
     /*
     !! UPDATE VERSION NUMBER WITH EACH UPDATE !!
      */
@@ -52,17 +54,19 @@ public final class NameColor extends JavaPlugin {
         setupPlayersFile();
         getModeFromConfig();
         configSetup();
-        overHeadName = setOverHeadName();
-        if(overHeadName == null){
+        //TO BE IMPLEMENTED IN FUTURE UPDATE
+        /*overHeadNameTagManager = setOverHeadName();
+        if(overHeadNameTagManager == null){
             setOverHeadNames = false;
             Bukkit.getLogger().info("[NameColor] NameColor overhead-names are not supported on this Minecraft version!");
             Bukkit.getLogger().info("[NameColor] Check for updates that support your Minecraft version!");
             Bukkit.getLogger().info("[NameColor] Enabling without overhead-name support.");
-        }
+        }*/
         SetName.initialize();
         int pluginId = 22112;
         Metrics metrics = new Metrics(this, pluginId);
         metrics.addCustomChart(new SimplePie("mode", this::getMode));
+        metrics.addCustomChart(new SimplePie("distributor", this::getDistributor));
         registerClasses();
         Messenger.initialize();
         Bukkit.getLogger().info("[NameColor] NameColor version " + pluginVersion + " enabled.");
@@ -78,8 +82,8 @@ public final class NameColor extends JavaPlugin {
     Private Methods
      */
     @Nullable
-    private OverheadName setOverHeadName(){
-        switch(Bukkit.getVersion()){
+    private PlayerNameTagManager setOverHeadName(){
+        /*switch(Bukkit.getVersion()){
             case "1.21":
                 return new Version_1_21();
             case "1.20.6":
@@ -87,7 +91,8 @@ public final class NameColor extends JavaPlugin {
             default:
                 //Unsupported Minecraft version
                 return null;
-        }
+        }*/
+        return new Version_1_21();
     }
     private void registerClasses(){
         this.getCommand("namecolor").setExecutor(new NameColorCommand());
@@ -152,11 +157,19 @@ public final class NameColor extends JavaPlugin {
                 e.printStackTrace();
             }
         }
+        //Default color
         if(config.getString("default-color") != null){
             defaultColor = config.getString("default-color");
         }else {
             defaultColor = "&f";
         }
+        //Nickname length limit, defaults to 16 if null
+        maxNicknameLength = config.getInt("max-nickname-length");
+        if(maxNicknameLength == 0){
+            maxNicknameLength = 16;
+        }
+        //Allow nicknames that are the same as another player's username
+        allowUserNick = config.getBoolean("allow-username-nicknames");
     }
     /*
     Object getter methods
@@ -164,11 +177,14 @@ public final class NameColor extends JavaPlugin {
     public static NameColor getInstance(){
         return instance;
     }
-    public OverheadName getOverheadName() {
-        return overHeadName;
+    public PlayerNameTagManager getOverheadName() {
+        return overHeadNameTagManager;
     }
     public FileConfiguration getConfigFile(){
         return config;
+    }
+    public FileConfiguration getPlayersConfig() {
+        return playersConfig;
     }
     /*
     Variable getter methods
@@ -179,6 +195,7 @@ public final class NameColor extends JavaPlugin {
     public String getMode(){
         return mode;
     }
+    public String getDistributor() { return distributor; }
     public void savePlayersConfig() {
         try {
             playersConfig.save(playersFile);
@@ -186,6 +203,7 @@ public final class NameColor extends JavaPlugin {
             e.printStackTrace();
         }
     }
+    public boolean allowUsernameNicknames(){ return allowUserNick; }
     public boolean notifyChange(){
         return notify;
     }
@@ -195,10 +213,13 @@ public final class NameColor extends JavaPlugin {
     public boolean isSetOverHeadNames(){
         return setOverHeadNames;
     }
+    public int nickLengthLimit(){
+        return maxNicknameLength;
+    }
     /*
-    Message processing methods, to be moved to Messenger.java.
+    Message processing methods, now moved to Messenger.java.
      */
-    @Nullable
+    @Deprecated @Nullable
     public String processPlaceholders(Player player) { //processes display name placeholder for message sent to player that had display name changed
         String msg = config.getString("name-set");
         if (msg != null) {
@@ -209,7 +230,7 @@ public final class NameColor extends JavaPlugin {
         }
         return null;
     }
-    @Nullable
+    @Deprecated @Nullable
     public String processSenderPlaceholders(Player player){ //processes placeholders for sender
         String msg = config.getString("name-set-other");
         if(msg != null){
