@@ -11,7 +11,7 @@ import java.util.HashMap;
 public final class Messenger {
     //Class to send messages based on config, w/prefix
     public enum Message{
-        NAMECOLOR_HELP, NICKNAME_HELP, WHOIS_HELP, INSUFFICIENT_ARGS, INVALID_PLAYER, NO_PERMS, NAME_SET, NAME_SET_OTHER, WHOIS_MESSAGE, INVALID_ARGS_COLOR, INVALID_ARGS_NICK, INVALID_ARGS_WHOIS, INVALID_CMD_COLOR, INVALID_CMD_NICK, INVALID_COLOR, NICK_TOO_LONG, USERNAME_NICK_PROHIBITED
+        NAMECOLOR_HELP, NICKNAME_HELP, WHOIS_HELP, INSUFFICIENT_ARGS, INVALID_PLAYER, NO_PERMS, NAME_SET, NAME_SET_OTHER, WHOIS_MESSAGE, INVALID_ARGS_COLOR, INVALID_ARGS_NICK, INVALID_ARGS_WHOIS, INVALID_CMD_COLOR, INVALID_CMD_NICK, INVALID_COLOR, NICK_TOO_LONG, USERNAME_NICK_PROHIBITED, COLORS
     }
     private static final HashMap<Message, Object> messageStringHashMap = new HashMap<>();
     private static String prefix;
@@ -32,6 +32,21 @@ public final class Messenger {
                 "&f<username> may be blank, RGB colors supported.",
                 "&fNote: Enter RGB codes as &#<RGB>."
         });
+        defaults.put(Message.COLORS, new String[]{
+                "&8+--------------[&dNameColor&8]--------------+",
+                "" + ChatColor.WHITE + "&0" + ChatColor.BLACK + " Black" + ChatColor.WHITE + "&1" + ChatColor.DARK_BLUE + " Dark Blue",
+                "" + ChatColor.WHITE + "&2" + ChatColor.DARK_GREEN + " Dark Green" + ChatColor.WHITE + "&3" + ChatColor.DARK_AQUA + " Dark Aqua",
+                "" + ChatColor.WHITE + "&4" + ChatColor.DARK_RED + " Dark Red" + ChatColor.WHITE + "&5" + ChatColor.DARK_PURPLE + " Dark Purple",
+                "" + ChatColor.WHITE + "&6" + ChatColor.GOLD + " Gold" + ChatColor.WHITE + "&7" + ChatColor.GRAY + " Gray",
+                "" + ChatColor.WHITE + "&8" + ChatColor.DARK_GRAY + " Dark Gray" + ChatColor.WHITE + "&9" + ChatColor.BLUE + " Blue",
+                "" + ChatColor.WHITE + "&a" + ChatColor.GREEN + " Green" + ChatColor.WHITE + "&b" + ChatColor.AQUA + " Aqua",
+                "" + ChatColor.WHITE +  "&c" + ChatColor.RED + " Red" + ChatColor.WHITE + "&d" + ChatColor.LIGHT_PURPLE + " Light Purple",
+                "" +  ChatColor.WHITE + "&e" + ChatColor.YELLOW + " Yellow" + ChatColor.WHITE + "&f" + ChatColor.WHITE + " White",
+                "" + ChatColor.WHITE + "Styles:",
+                "" + ChatColor.WHITE + "&l" + ChatColor.BOLD + " Bold" + ChatColor.RESET + ChatColor.WHITE + "&k" + ChatColor.MAGIC + " Magic",
+                "" + ChatColor.WHITE + "&n" + ChatColor.UNDERLINE + " Underline" + ChatColor.RESET + ChatColor.WHITE + "&m" + ChatColor.STRIKETHROUGH + " Strikethrough",
+                "" + ChatColor.WHITE + "&o" + ChatColor.ITALIC + " Italic" + ChatColor.RESET + ChatColor.WHITE + "&r" + ChatColor.WHITE + " Reset"
+        });
         defaults.put(Message.WHOIS_HELP, "&fUsage: &7/whois <display name>");
         defaults.put(Message.INSUFFICIENT_ARGS, "&fInsufficient arguments.");
         defaults.put(Message.INVALID_PLAYER, "&fCannot find that player!");
@@ -45,7 +60,7 @@ public final class Messenger {
         defaults.put(Message.INVALID_CMD_COLOR, "&fInvalid command usage! Type &7/namecolor help &ffor usage.");
         defaults.put(Message.INVALID_CMD_NICK, "&fInvalid command usage! Type &7/nick help &ffor usage.");
         defaults.put(Message.INVALID_COLOR, "&fInvalid color!");
-        defaults.put(Message.NICK_TOO_LONG, "&fYour nickname is too long!");
+        defaults.put(Message.NICK_TOO_LONG, "&fThat nickname is too long!");
         defaults.put(Message.USERNAME_NICK_PROHIBITED, "&fYour nickname cannot be the username of another player.");
     }
     //Initialize HashMap
@@ -68,6 +83,7 @@ public final class Messenger {
         if(prefix == null){
             prefix = "&8[&dNameColor&8] &f";
         }
+        messageStringHashMap.put(Message.COLORS, defaults.get(Message.COLORS));
     }
     public static void sendMessage(CommandSender sender, Message message){
         if(messageStringHashMap.get(message) instanceof String[] msg){
