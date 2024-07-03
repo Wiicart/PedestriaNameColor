@@ -2,6 +2,7 @@ package com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
+import com.pedestriamc.namecolor.nms.PlayerNameTagManager;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -24,6 +25,7 @@ public final class SetName {
     private static Essentials essentials;
     private static Pattern pattern;
     private static BidiMap<Player, String> playerDisplayNames; //https://stackoverflow.com/questions/5415056/bidimap-synchronization
+    //private static final PlayerNameTagManager nameTagManager = NameColor.getInstance().getOverheadName();
     public static void initialize(){
         if(NameColor.getInstance().getMode().equals("essentials")){
             useEssentials = true;
@@ -49,6 +51,7 @@ public final class SetName {
         if(save){
             StoredPlayers.saveStoredPlayer(new StoredPlayer(player, color));
         }
+        //nameTagManager.setOverHeadName(player, color + player.getName());
         addPlayer(player);
     }
     //RGB mode (old)
@@ -81,6 +84,7 @@ public final class SetName {
                 player.setDisplayName(ChatColor.translateAlternateColorCodes('&',color) + player.getName());
             }
         }
+        //nameTagManager.setOverHeadName(player, color);
         addPlayer(player);
     }
     //SetNick method used by both NameColorCommand.java and NicknameCommand.java
@@ -96,24 +100,26 @@ public final class SetName {
         //Ensure that name color codes don't extend beyond name
         nick += "&r";
         nick = ChatColor.translateAlternateColorCodes('&', nick);
-        if(useEssentials){
-            User user = essentials.getUser(player.getUniqueId());
-            player.setDisplayName(ChatColor.translateAlternateColorCodes('&', nick));
-            user.setNickname(nick);
 
-        }else{
-            player.setDisplayName(ChatColor.translateAlternateColorCodes('&', nick));
-            //player.setPlayerListName(); - look into this later
+        //Setting the proper display names
+        player.setDisplayName(ChatColor.translateAlternateColorCodes('&', nick));
+        //Additional step if using Essentials API
+        if(useEssentials){
+            essentials.getUser(player.getUniqueId()).setNickname(nick);
         }
+        //Saves player
         if(save){
             //Saving as new StoredPlayer
             StoredPlayers.saveStoredPlayer(new StoredPlayer(player, nick,true));
             //Add to hashmap of online players
             addPlayer(player);
         }
+        //nameTagManager.setOverHeadName(player, nick);
     }
+
     //Display name hashmap getter, setter methods
     //Data stored with Player object first, then displayName String
+
     @Nullable
     //Gets a player's username from the hashmap
     public static String getPlayer(String displayName){
@@ -132,4 +138,3 @@ public final class SetName {
         playerDisplayNames.remove(player);
     }
 }
-
