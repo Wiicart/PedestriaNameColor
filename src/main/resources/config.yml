@@ -35,7 +35,7 @@ default-color: '&f'
 max-nickname-length: 16
 
 # Allow nicknames that are the username of a player?
-allow-username-nicknames: false
+allow-username-nicknames: true
 
 # +----- Messages -----+
 # Note: prefix is used before all messages.
@@ -106,7 +106,8 @@ invalid-cmd-nick: '&fInvalid command usage! Type &7/nick help &ffor usage.'
 invalid-color: '&fInvalid color!'
 
 # Nickname too long
-nick-too-long: '&fYour nickname is too long!'
+nick-too-long: '&fThat nickname is too long!'
 
 # Nickname that is the username of another player not allowed
 username-nick-prohibited: '&fYour nickname cannot be the same as the username of another player.'
+
