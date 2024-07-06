@@ -2,7 +2,6 @@ package com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
-import com.pedestriamc.namecolor.nms.PlayerNameTagManager;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -14,7 +13,7 @@ import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class SetName {
+public final class NameUtilities {
     /*
     Class to actual update names, and optionally save them.
     both setColor methods are not used any more by NameColorCommand.java and NicknameCommand.java, though
@@ -25,7 +24,6 @@ public final class SetName {
     private static Essentials essentials;
     private static Pattern pattern;
     private static BidiMap<Player, String> playerDisplayNames; //https://stackoverflow.com/questions/5415056/bidimap-synchronization
-    //private static final PlayerNameTagManager nameTagManager = NameColor.getInstance().getOverheadName();
     public static void initialize(){
         if(NameColor.getInstance().getMode().equals("essentials")){
             useEssentials = true;
@@ -34,7 +32,7 @@ public final class SetName {
         pattern = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
         playerDisplayNames = new DualHashBidiMap<>();
     }
-    //ChatColor mode (old)
+    //ChatColor mode (only used by GUI)
     public static void setColor(Player player, ChatColor color, boolean save){
         if(useEssentials){
             try{
@@ -51,10 +49,9 @@ public final class SetName {
         if(save){
             StoredPlayers.saveStoredPlayer(new StoredPlayer(player, color));
         }
-        //nameTagManager.setOverHeadName(player, color + player.getName());
         addPlayer(player);
     }
-    //RGB mode (old)
+    //RGB mode, old
     public static void setColor(Player player, String color, boolean save){
         if(color.charAt(0) == '#'){
             if(useEssentials){
@@ -84,7 +81,6 @@ public final class SetName {
                 player.setDisplayName(ChatColor.translateAlternateColorCodes('&',color) + player.getName());
             }
         }
-        //nameTagManager.setOverHeadName(player, color);
         addPlayer(player);
     }
     //SetNick method used by both NameColorCommand.java and NicknameCommand.java
@@ -111,10 +107,8 @@ public final class SetName {
         if(save){
             //Saving as new StoredPlayer
             StoredPlayers.saveStoredPlayer(new StoredPlayer(player, nick,true));
-            //Add to hashmap of online players
-            addPlayer(player);
         }
-        //nameTagManager.setOverHeadName(player, nick);
+        addPlayer(player);
     }
 
     //Display name hashmap getter, setter methods
