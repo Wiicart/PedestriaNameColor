@@ -37,6 +37,9 @@ max-nickname-length: 16
 # Allow nicknames that are the username of a player?
 allow-username-nicknames: true
 
+# Notify players when their display name has changed?
+notify-players: true
+
 # +----- Messages -----+
 # Note: prefix is used before all messages.
 # Compatible with '&' color codes.
@@ -110,4 +113,3 @@ nick-too-long: '&fThat nickname is too long!'
 
 # Nickname that is the username of another player not allowed
 username-nick-prohibited: '&fYour nickname cannot be the same as the username of another player.'
-
