@@ -1,14 +1,16 @@
 package com.pedestriamc.namecolor.commands;
 
+import com.pedestriamc.namecolor.Message;
 import com.pedestriamc.namecolor.Messenger;
 import com.pedestriamc.namecolor.NameColor;
-import com.pedestriamc.namecolor.SetName;
+import com.pedestriamc.namecolor.NameUtilities;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -16,8 +18,9 @@ public class NameColorCommand implements CommandExecutor {
 
     private final String[] colors = new String[]{"BLACK", "DARKBLUE", "DARKGREEN", "DARKAQUA", "DARKRED", "DARKPURPLE", "GOLD", "GRAY", "DARKGRAY", "BLUE", "GREEN", "AQUA", "RED", "LIGHTPURPLE", "YELLOW", "WHITE"};
     private final ChatColor[] chatColors = new ChatColor[]{ChatColor.BLACK, ChatColor.DARK_BLUE, ChatColor.DARK_GREEN, ChatColor.DARK_AQUA, ChatColor.DARK_RED, ChatColor.DARK_PURPLE, ChatColor.GOLD, ChatColor.GRAY, ChatColor.DARK_GRAY, ChatColor.BLUE, ChatColor.GREEN, ChatColor.AQUA, ChatColor.RED, ChatColor.LIGHT_PURPLE, ChatColor.YELLOW, ChatColor.WHITE};
+    private final boolean notifyPlayer = NameColor.getInstance().notifyChange();
 
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         Player selectedPlayer;
         StringBuilder color = new StringBuilder();
         //Check if command is invalid or player does not have permission
@@ -26,22 +29,22 @@ public class NameColorCommand implements CommandExecutor {
             selectedPlayer = (Player) sender;
             //Check for permissions
             if(!sender.hasPermission("namecolor.set") && !sender.hasPermission("namecolor.*")){
-                Messenger.sendMessage(sender, Messenger.Message.NO_PERMS);
+                Messenger.sendMessage(sender, Message.NO_PERMS);
                 return true;
             }
             //Check if args == 0
             if(args.length == 0){
-                Messenger.sendMessage(sender, Messenger.Message.INSUFFICIENT_ARGS);
+                Messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
                 return true;
             }
             if (args[0].equalsIgnoreCase("HELP")) {
-                Messenger.sendMessage(sender, Messenger.Message.NAMECOLOR_HELP);
+                Messenger.sendMessage(sender, Message.NAMECOLOR_HELP);
                 return true;
             }
             //Check if command is setting a different player's nickname
             if(args.length >= 2 && Bukkit.getPlayer(args[args.length - 1]) != null){
                 if (!sender.hasPermission("namecolor.set.others") && !sender.hasPermission("namecolor.*")){
-                    Messenger.sendMessage(sender, Messenger.Message.NO_PERMS);
+                    Messenger.sendMessage(sender, Message.NO_PERMS);
                     return true;
                 }else{
                     selectedPlayer = Bukkit.getPlayer(args[args.length - 1]);
@@ -49,13 +52,13 @@ public class NameColorCommand implements CommandExecutor {
             }
         }else{ //Sender is server
             if(args.length < 2){
-                Messenger.sendMessage(sender, Messenger.Message.INSUFFICIENT_ARGS);
+                Messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
                 return true;
             }
             if(Bukkit.getPlayer(args[args.length - 1]) != null){
                 selectedPlayer = Bukkit.getPlayer(args[args.length - 1]);
             }else{
-                Messenger.sendMessage(sender, Messenger.Message.INVALID_PLAYER);
+                Messenger.sendMessage(sender, Message.INVALID_PLAYER);
                 return true;
             }
         }
@@ -68,7 +71,7 @@ public class NameColorCommand implements CommandExecutor {
             color.append(args[0].toUpperCase());
         }else{
             //Invalid color as first arg
-            Messenger.sendMessage(sender, Messenger.Message.INVALID_ARGS_COLOR);
+            Messenger.sendMessage(sender, Message.INVALID_ARGS_COLOR);
             return true;
         }
         //process additional options such as bold, italics, etc.
@@ -95,13 +98,13 @@ public class NameColorCommand implements CommandExecutor {
                 }
             }
         color.append(selectedPlayer.getName());
-        SetName.setNick(color.toString(), selectedPlayer, true);
+        NameUtilities.setNick(color.toString(), selectedPlayer, true);
         if(!sender.equals(selectedPlayer)){
-            Messenger.processPlaceholders(sender, Messenger.Message.NAME_SET_OTHER, selectedPlayer);
-            //sender.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + NameColor.getInstance().processSenderPlaceholders(selectedPlayer));
+            Messenger.processPlaceholders(sender, Message.NAME_SET_OTHER, selectedPlayer);
         }
-        Messenger.processPlaceholders(selectedPlayer, Messenger.Message.NAME_SET, selectedPlayer);
-        //selectedPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', NameColor.getInstance().getPrefix()) + NameColor.getInstance().processPlaceholders(selectedPlayer));
+        if(notifyPlayer){
+            Messenger.processPlaceholders(selectedPlayer, Message.NAME_SET, selectedPlayer);
+        }
         return true;
     }
 }
