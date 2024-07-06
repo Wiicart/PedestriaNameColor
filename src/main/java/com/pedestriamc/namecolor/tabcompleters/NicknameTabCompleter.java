@@ -13,7 +13,7 @@ public class NicknameTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player){
-            if(args.length == 1 && args[0].substring(0,1).equalsIgnoreCase("r")){
+            if(args.length == 1 && args[0].length() > 0 && args[0].substring(0,1).equalsIgnoreCase("r")){
                 return list;
             }
         }
