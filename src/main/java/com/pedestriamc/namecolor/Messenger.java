@@ -6,18 +6,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 
 public final class Messenger {
     //Class to send messages based on config, w/prefix
-    public enum Message{
-        NAMECOLOR_HELP, NICKNAME_HELP, WHOIS_HELP, INSUFFICIENT_ARGS, INVALID_PLAYER, NO_PERMS, NAME_SET, NAME_SET_OTHER, WHOIS_MESSAGE, INVALID_ARGS_COLOR, INVALID_ARGS_NICK, INVALID_ARGS_WHOIS, INVALID_CMD_COLOR, INVALID_CMD_NICK, INVALID_COLOR, NICK_TOO_LONG, USERNAME_NICK_PROHIBITED, COLORS
-    }
-    private static final HashMap<Message, Object> messageStringHashMap = new HashMap<>();
+    private static final EnumMap<Message, Object> messageMap = new EnumMap<>(Message.class);
     private static String prefix;
-    private static final HashMap<Message, Object> defaults;
+    private static final EnumMap<Message, Object> defaults;
     static{
-        defaults = new HashMap<>();
+        defaults = new EnumMap<>(Message.class);
         defaults.put(Message.NAMECOLOR_HELP, new String[]{
                 "&8+----[&dNameColor&8]----+",
                 "&fUsage: &7/namecolor <color> <option1> <option2>&f.",
@@ -31,21 +28,6 @@ public final class Messenger {
                 "&fUsage: &7/nick <nick> <username>&f.",
                 "&f<username> may be blank, RGB colors supported.",
                 "&fNote: Enter RGB codes as &#<RGB>."
-        });
-        defaults.put(Message.COLORS, new String[]{
-                "&8+--------------[&dNameColor&8]--------------+",
-                "" + ChatColor.WHITE + "&0" + ChatColor.BLACK + " Black" + ChatColor.WHITE + "&1" + ChatColor.DARK_BLUE + " Dark Blue",
-                "" + ChatColor.WHITE + "&2" + ChatColor.DARK_GREEN + " Dark Green" + ChatColor.WHITE + "&3" + ChatColor.DARK_AQUA + " Dark Aqua",
-                "" + ChatColor.WHITE + "&4" + ChatColor.DARK_RED + " Dark Red" + ChatColor.WHITE + "&5" + ChatColor.DARK_PURPLE + " Dark Purple",
-                "" + ChatColor.WHITE + "&6" + ChatColor.GOLD + " Gold" + ChatColor.WHITE + "&7" + ChatColor.GRAY + " Gray",
-                "" + ChatColor.WHITE + "&8" + ChatColor.DARK_GRAY + " Dark Gray" + ChatColor.WHITE + "&9" + ChatColor.BLUE + " Blue",
-                "" + ChatColor.WHITE + "&a" + ChatColor.GREEN + " Green" + ChatColor.WHITE + "&b" + ChatColor.AQUA + " Aqua",
-                "" + ChatColor.WHITE +  "&c" + ChatColor.RED + " Red" + ChatColor.WHITE + "&d" + ChatColor.LIGHT_PURPLE + " Light Purple",
-                "" +  ChatColor.WHITE + "&e" + ChatColor.YELLOW + " Yellow" + ChatColor.WHITE + "&f" + ChatColor.WHITE + " White",
-                "" + ChatColor.WHITE + "Styles:",
-                "" + ChatColor.WHITE + "&l" + ChatColor.BOLD + " Bold" + ChatColor.RESET + ChatColor.WHITE + "&k" + ChatColor.MAGIC + " Magic",
-                "" + ChatColor.WHITE + "&n" + ChatColor.UNDERLINE + " Underline" + ChatColor.RESET + ChatColor.WHITE + "&m" + ChatColor.STRIKETHROUGH + " Strikethrough",
-                "" + ChatColor.WHITE + "&o" + ChatColor.ITALIC + " Italic" + ChatColor.RESET + ChatColor.WHITE + "&r" + ChatColor.WHITE + " Reset"
         });
         defaults.put(Message.WHOIS_HELP, "&fUsage: &7/whois <display name>");
         defaults.put(Message.INSUFFICIENT_ARGS, "&fInsufficient arguments.");
@@ -63,41 +45,40 @@ public final class Messenger {
         defaults.put(Message.NICK_TOO_LONG, "&fThat nickname is too long!");
         defaults.put(Message.USERNAME_NICK_PROHIBITED, "&fYour nickname cannot be the username of another player.");
     }
-    //Initialize HashMap
+    //Initialize EnumMap
     public static void initialize(){
         FileConfiguration config = NameColor.getInstance().getConfig();
         for(Message msg : Message.values()){ //https://www.baeldung.com/java-enum-iteration
             String configValue = msg.toString().replace("_", "-").toLowerCase();
             try{
                 if (config.isList(configValue)) {
-                    messageStringHashMap.put(msg, config.getStringList(configValue).toArray(new String[0]));
+                    messageMap.put(msg, config.getStringList(configValue).toArray(new String[0]));
                 } else {
-                    messageStringHashMap.put(msg, config.getString(configValue));
+                    messageMap.put(msg, config.getString(configValue));
                 }
             }catch(NullPointerException a){
                 Bukkit.getLogger().info("[NameColor] Unable to find value " + configValue + " in config.yml, resorting to default message.");
-                messageStringHashMap.put(msg, defaults.get(msg));
+                messageMap.put(msg, defaults.get(msg));
             }
         }
-        prefix = config.getString("prefix");
-        if(prefix == null){
-            prefix = "&8[&dNameColor&8] &f";
-        }
-        messageStringHashMap.put(Message.COLORS, defaults.get(Message.COLORS));
+        prefix = config.getString("prefix", "&8[&dNameColor&8] &f");
     }
     public static void sendMessage(CommandSender sender, Message message){
-        if(messageStringHashMap.get(message) instanceof String[] msg){
+        if(messageMap.get(message) instanceof String[] msg){
             for(String str : msg){
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
             }
-        }else if(messageStringHashMap.get(message) instanceof String){
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + messageStringHashMap.get(message)));
+        }else if(messageMap.get(message) instanceof String){
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + messageMap.get(message)));
         }else{
             Bukkit.getLogger().info("[NameColor] Unknown object type for message " + message.toString());
         }
     }
     public static void processPlaceholders(CommandSender sender, Message message, Player player){
-        String finalMessage = (String) messageStringHashMap.get(message);
+        //sender is who the message is sent to
+        //message is the enum message to be used
+        //player is the player who's info will be used for placeholders
+        String finalMessage = (String) messageMap.get(message);
         while(finalMessage.contains("%display-name%")){
             finalMessage = finalMessage.replace("%display-name%", player.getDisplayName());
         }
