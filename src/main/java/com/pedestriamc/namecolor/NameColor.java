@@ -4,6 +4,8 @@ import com.earth2me.essentials.Essentials;
 import com.pedestriamc.namecolor.commands.NameColorCommand;
 import com.pedestriamc.namecolor.commands.NicknameCommand;
 import com.pedestriamc.namecolor.commands.WhoIsCommand;
+import com.pedestriamc.namecolor.gui.GUIListener;
+import com.pedestriamc.namecolor.gui.GUIManager;
 import com.pedestriamc.namecolor.listeners.JoinListener;
 import com.pedestriamc.namecolor.listeners.LeaveListener;
 import com.pedestriamc.namecolor.nms.PlayerNameTagManager;
@@ -25,7 +27,7 @@ import java.io.IOException;
 
 public final class NameColor extends JavaPlugin {
 
-    private FileConfiguration config = getConfig();
+    private final FileConfiguration config = getConfig();
     private static NameColor instance;
     private File playersFile;
     private FileConfiguration playersConfig;
@@ -36,7 +38,7 @@ public final class NameColor extends JavaPlugin {
     private boolean setOverHeadNames = true;
     private boolean allowUserNick = false;
     private int maxNicknameLength = 0;
-    private final String pluginVersion = "1.4";
+    private final String pluginVersion = "1.5";
     private final String distributor = "spigot";
     /*
     !! UPDATE VERSION NUMBER WITH EACH UPDATE !!
@@ -50,7 +52,7 @@ public final class NameColor extends JavaPlugin {
         getModeFromConfig();
         configSetup();
         //setOverHeadName();
-        SetName.initialize();
+        NameUtilities.initialize();
         int pluginId = 22112;
         Metrics metrics = new Metrics(this, pluginId);
         metrics.addCustomChart(new SimplePie("mode", this::getMode));
@@ -84,6 +86,10 @@ public final class NameColor extends JavaPlugin {
     }
     //Registers commands and listeners
     private void registerClasses(){
+        GUIManager guiManager = new GUIManager();
+        GUIListener listener = new GUIListener(guiManager);
+        Bukkit.getPluginManager().registerEvents(listener,this);
+
         try{
             this.getCommand("namecolor").setExecutor(new NameColorCommand());
             this.getCommand("nick").setExecutor(new NicknameCommand());
@@ -167,6 +173,7 @@ public final class NameColor extends JavaPlugin {
         }
         //Allow nicknames that are the same as another player's username
         allowUserNick = config.getBoolean("allow-username-nicknames");
+        notify = config.getBoolean("notify-players", true);
     }
     /*
     Object getter methods
