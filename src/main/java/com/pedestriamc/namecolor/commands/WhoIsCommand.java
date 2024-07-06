@@ -1,7 +1,8 @@
-age com.pedestriamc.namecolor.commands;
+package com.pedestriamc.namecolor.commands;
 
+import com.pedestriamc.namecolor.Message;
 import com.pedestriamc.namecolor.Messenger;
-import com.pedestriamc.namecolor.SetName;
+import com.pedestriamc.namecolor.NameUtilities;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,29 +15,25 @@ public class WhoIsCommand implements CommandExecutor {
         if(sender.hasPermission("namecolor.whois") || sender.hasPermission("namecolor.*")){
             //Check for insufficient args
             if(args.length == 0){
-                Messenger.sendMessage(sender, Messenger.Message.INSUFFICIENT_ARGS);
+                Messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
                 return true;
             }
             //Check for too many args
             if(args.length > 1){
-                Messenger.sendMessage(sender, Messenger.Message.INVALID_ARGS_WHOIS);
-                return true;
-            }
-            if(args[0].equalsIgnoreCase("color")){
-                Messenger.sendMessage(sender, Messenger.Message.COLORS);
+                Messenger.sendMessage(sender, Message.INVALID_ARGS_WHOIS);
                 return true;
             }
             //Check if can't find display name
-            if(SetName.getPlayer(args[0]) == null){
-                Messenger.sendMessage(sender, Messenger.Message.INVALID_PLAYER);
+            if(NameUtilities.getPlayer(args[0]) == null){
+                Messenger.sendMessage(sender, Message.INVALID_PLAYER);
                 return true;
             }else{
                 //All good, sending who is msg
-                Messenger.processPlaceholders(sender, Messenger.Message.WHOIS_MESSAGE, Bukkit.getPlayer(SetName.getPlayer(args[0])));
+                Messenger.processPlaceholders(sender, Message.WHOIS_MESSAGE, Bukkit.getPlayer(NameUtilities.getPlayer(args[0])));
                 return true;
             }
         }else{
-            Messenger.sendMessage(sender, Messenger.Message.NO_PERMS);
+            Messenger.sendMessage(sender, Message.NO_PERMS);
             return true;
         }
     }
