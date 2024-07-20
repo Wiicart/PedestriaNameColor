@@ -24,6 +24,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public final class NameColor extends JavaPlugin {
 
@@ -31,6 +33,8 @@ public final class NameColor extends JavaPlugin {
     private static NameColor instance;
     private File playersFile;
     private FileConfiguration playersConfig;
+    File blacklistFile;
+    FileConfiguration blacklistFileConfig;
     private String mode;
     private boolean notify;
     private String defaultColor;
@@ -39,7 +43,7 @@ public final class NameColor extends JavaPlugin {
     private boolean allowUserNick = false;
     private int maxNicknameLength = 0;
     private final String pluginVersion = "1.5";
-    private final String distributor = "spigot";
+    private final String distributor = "hangar";
     /*
     !! UPDATE VERSION NUMBER WITH EACH UPDATE !!
      */
@@ -49,6 +53,7 @@ public final class NameColor extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
         setupPlayersFile();
+        setupBlacklistFile();
         getModeFromConfig();
         configSetup();
         //setOverHeadName();
@@ -117,6 +122,14 @@ public final class NameColor extends JavaPlugin {
             }
         }
         playersConfig = YamlConfiguration.loadConfiguration(playersFile);
+    }
+    private void setupBlacklistFile(){
+        blacklistFile = new File(getDataFolder(), "blacklist.yml");
+        if(!blacklistFile.exists()){
+            blacklistFile.getParentFile().mkdirs();
+            saveResource("blacklist.yml", false);
+        }
+        blacklistFileConfig = YamlConfiguration.loadConfiguration(blacklistFile);
     }
     //Gets mode from config file, consider if option set in config is viable
     private void getModeFromConfig(){
@@ -226,6 +239,9 @@ public final class NameColor extends JavaPlugin {
     /*
     Public config methods
      */
+    public FileConfiguration getBlacklistFileConfig(){
+        return blacklistFileConfig;
+    }
     //saves players.yml file
     public void savePlayersConfig() {
         try {
