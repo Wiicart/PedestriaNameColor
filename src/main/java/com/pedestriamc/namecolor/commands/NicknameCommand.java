@@ -13,9 +13,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.regex.Pattern;
+
 public class NicknameCommand implements CommandExecutor {
 
     private final boolean notifyChange = NameColor.getInstance().notifyChange();
+    private final Pattern pattern = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         Player selectedPlayer;
@@ -50,13 +53,19 @@ public class NicknameCommand implements CommandExecutor {
                 }
                 selectedPlayer = (Player) sender;
                 nick = args[0];
-                if(ChatColor.stripColor(nick).length() > NameColor.getInstance().nickLengthLimit()){
+                if(isNickTooLong(nick)){
                     Messenger.sendMessage(sender, Message.NICK_TOO_LONG);
                     return true;
                 }
-                if(isDuplicateNickname(nick, (Player) sender)){
-                    Messenger.sendMessage(sender, Message.USERNAME_NICK_PROHIBITED);
-                    return true;
+                if(!sender.hasPermission("namecolor.filter.bypass")){
+                    if(isDuplicateNickname(nick, (Player) sender)){
+                        Messenger.sendMessage(sender, Message.USERNAME_NICK_PROHIBITED);
+                        return true;
+                    }
+                    if(isBlacklistedNickname(nick)){
+                        Messenger.sendMessage(sender, Message.NICK_BLACKLIST);
+                        return true;
+                    }
                 }
                 NameUtilities.setNick(nick, selectedPlayer,true);
                 if(notifyChange){
@@ -83,7 +92,7 @@ public class NicknameCommand implements CommandExecutor {
                 Messenger.processPlaceholders(sender, Message.NAME_SET_OTHER, (Player) sender);
                 return true;
             }
-            if(ChatColor.stripColor(args[0]).length() > NameColor.getInstance().nickLengthLimit()){
+            if(isNickTooLong(args[0])){
                 Messenger.sendMessage(sender, Message.NICK_TOO_LONG);
                 return true;
             }
@@ -106,7 +115,9 @@ public class NicknameCommand implements CommandExecutor {
     //Method to determine if nicknames that are the same as another player's username is allowed, and if so, determine
     //if the nickname is offending
     public boolean isDuplicateNickname(@NotNull String name, @NotNull Player player){
-        String nickWithNoColor = ChatColor.stripColor(name);
+        String nickWithNoColor = pattern.matcher(name).replaceAll("");
+        nickWithNoColor = ChatColor.translateAlternateColorCodes('&', nickWithNoColor);
+        nickWithNoColor = ChatColor.stripColor(nickWithNoColor);
         if(nickWithNoColor.equals(player.getName())){
             return false;
         }
@@ -124,5 +135,21 @@ public class NicknameCommand implements CommandExecutor {
             }
         }
         return false;
+    }
+
+    public boolean isBlacklistedNickname(@NotNull String name){
+        name = pattern.matcher(name).replaceAll("");
+        name = ChatColor.translateAlternateColorCodes('&',name);
+        name = ChatColor.stripColor(name);
+        name = name.toLowerCase();
+        return NameUtilities.getBlacklist().contains(name);
+    }
+
+    public boolean isNickTooLong(@NotNull String name){
+        name = pattern.matcher(name).replaceAll("");
+        name = ChatColor.translateAlternateColorCodes('&',name);
+        name = ChatColor.stripColor(name);
+        return name.length() > NameColor.getInstance().nickLengthLimit();
+
     }
 }
