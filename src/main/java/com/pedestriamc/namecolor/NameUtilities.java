@@ -6,10 +6,13 @@ import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +26,7 @@ public final class NameUtilities {
     private static boolean useEssentials = false;
     private static Essentials essentials;
     private static Pattern pattern;
+    private static ArrayList<String> blacklist;
     private static BidiMap<Player, String> playerDisplayNames; //https://stackoverflow.com/questions/5415056/bidimap-synchronization
     public static void initialize(){
         if(NameColor.getInstance().getMode().equals("essentials")){
@@ -31,6 +35,16 @@ public final class NameUtilities {
         }
         pattern = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
         playerDisplayNames = new DualHashBidiMap<>();
+        FileConfiguration blacklistConfig = NameColor.getInstance().getBlacklistFileConfig();
+        blacklist = new ArrayList<>();
+        List<?> tempList = blacklistConfig.getList("blacklist");
+        if(tempList != null){
+            for(Object obj : tempList){
+                if(obj instanceof String){
+                    blacklist.add(((String) obj).toLowerCase());
+                }
+            }
+        }
     }
     //ChatColor mode (only used by GUI)
     public static void setColor(Player player, ChatColor color, boolean save){
@@ -110,6 +124,9 @@ public final class NameUtilities {
         }
         addPlayer(player);
     }
+    public static ArrayList<String> getBlacklist(){
+        return new ArrayList<>(blacklist);
+    }
 
     //Display name hashmap getter, setter methods
     //Data stored with Player object first, then displayName String
@@ -132,3 +149,4 @@ public final class NameUtilities {
         playerDisplayNames.remove(player);
     }
 }
+
