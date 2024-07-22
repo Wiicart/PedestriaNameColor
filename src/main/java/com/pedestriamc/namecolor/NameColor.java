@@ -15,6 +15,7 @@ import com.pedestriamc.namecolor.tabcompleters.NameColorCommandTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.NicknameTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.WhoIsTabCompleter;
 import com.tchristofferson.configupdater.ConfigUpdater;
+import net.md_5.bungee.api.ChatColor;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -22,10 +23,13 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public final class NameColor extends JavaPlugin {
 
@@ -43,6 +47,7 @@ public final class NameColor extends JavaPlugin {
     private boolean allowUserNick = false;
     private int maxNicknameLength = 0;
     private final String pluginVersion = "1.5";
+    private final short pluginNum = 5;
     private final String distributor = "hangar";
     /*
     !! UPDATE VERSION NUMBER WITH EACH UPDATE !!
@@ -64,6 +69,7 @@ public final class NameColor extends JavaPlugin {
         metrics.addCustomChart(new SimplePie("distributor", this::getDistributor));
         registerClasses();
         Messenger.initialize();
+        checkUpdate();
         Bukkit.getLogger().info("[NameColor] NameColor version " + pluginVersion + " enabled.");
     }
 
@@ -187,6 +193,24 @@ public final class NameColor extends JavaPlugin {
         //Allow nicknames that are the same as another player's username
         allowUserNick = config.getBoolean("allow-username-nicknames");
         notify = config.getBoolean("notify-players", true);
+    }
+    private void checkUpdate(){
+        try{
+            HttpsURLConnection connection = (HttpsURLConnection) new URL("https://wiicart.net/namecolor/version.txt").openConnection();
+            connection.setRequestMethod("GET");
+            String raw = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
+            short latest = Short.parseShort(raw);
+            if(latest > pluginNum){
+                Bukkit.getLogger().info("+-----------[NameColor]-----------+");
+                Bukkit.getLogger().info("|    A new update is available!   |");
+                Bukkit.getLogger().info("|          Download at:           |");
+                Bukkit.getLogger().info("|  https://wiicart.net/namecolor  |");
+                Bukkit.getLogger().info("+---------------------------------+");
+            }
+        } catch(IOException a){
+            a.printStackTrace();
+        }
+
     }
     /*
     Object getter methods
