@@ -158,6 +158,11 @@ public final class NameUtilities {
         Bukkit.getLogger().info("updateNameTag completed for player: " + player.getName());
     }
 
+    public void removeTeam(Player player){
+        String teamName = "colorBoard_" + player.getName();
+        teamMap.remove(teamName);
+    }
+
 
 
     public static ArrayList<String> getBlacklist(){
