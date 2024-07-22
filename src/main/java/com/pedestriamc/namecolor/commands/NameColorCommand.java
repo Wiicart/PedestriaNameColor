@@ -107,7 +107,7 @@ public class NameColorCommand implements CommandExecutor {
                 }
             }
         color.append(selectedPlayer.getName());
-        NameUtilities.setNick(color.toString(), selectedPlayer, true);
+        NameUtilities.setNick(color.toString(), selectedPlayer, true, true);
         if(!sender.equals(selectedPlayer)){
             Messenger.processPlaceholders(sender, Message.NAME_SET_OTHER, selectedPlayer);
         }
@@ -117,3 +117,4 @@ public class NameColorCommand implements CommandExecutor {
         return true;
     }
 }
+
