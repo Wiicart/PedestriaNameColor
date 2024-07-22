@@ -8,10 +8,14 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +31,7 @@ public final class NameUtilities {
     private static Essentials essentials;
     private static Pattern pattern;
     private static ArrayList<String> blacklist;
+    private static HashMap<String, Team> teamMap;
     private static BidiMap<Player, String> playerDisplayNames; //https://stackoverflow.com/questions/5415056/bidimap-synchronization
     public static void initialize(){
         if(NameColor.getInstance().getMode().equals("essentials")){
@@ -35,6 +40,7 @@ public final class NameUtilities {
         }
         pattern = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
         playerDisplayNames = new DualHashBidiMap<>();
+        teamMap = new HashMap<>();
         FileConfiguration blacklistConfig = NameColor.getInstance().getBlacklistFileConfig();
         blacklist = new ArrayList<>();
         List<?> tempList = blacklistConfig.getList("blacklist");
@@ -98,7 +104,7 @@ public final class NameUtilities {
         addPlayer(player);
     }
     //SetNick method used by both NameColorCommand.java and NicknameCommand.java
-    public static void setNick(String nick, Player player, boolean save){
+    public static void setNick(String nick, Player player, boolean save, boolean isNameColor){
         Matcher matcher = pattern.matcher(nick);//processing RGB code
         while(matcher.find()){ //https://stackoverflow.com/questions/15130309/how-to-use-regex-in-string-contains-method-in-java
             //https://stackoverflow.com/questions/237061/using-regular-expressions-to-extract-a-value-in-java
@@ -117,6 +123,10 @@ public final class NameUtilities {
         if(useEssentials){
             essentials.getUser(player.getUniqueId()).setNickname(nick);
         }
+        if(isNameColor){
+            nick = nick.replace(player.getName(),"");
+            updateNameTag(player, nick);
+        }
         //Saves player
         if(save){
             //Saving as new StoredPlayer
@@ -124,6 +134,32 @@ public final class NameUtilities {
         }
         addPlayer(player);
     }
+
+    public static void updateNameTag(Player player, String color) {
+        Bukkit.getLogger().info("updateNameTag called for player: " + player.getName() + " with color: " + color);
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        if (scoreboard == null) {
+            Bukkit.getLogger().severe("Failed to get the main scoreboard.");
+            return;
+        }
+        Team team = scoreboard.getTeam("colorBoard_" + player.getName());
+        if (team == null) {
+            team = scoreboard.registerNewTeam("colorBoard_" + player.getName());
+            Bukkit.getLogger().info("Created new team: " + team.getName());
+        } else {
+            team.removeEntry(player.getName());
+            Bukkit.getLogger().info("Removed previous entry from team: " + team.getName());
+        }
+
+        team.addEntry(player.getName());
+        team.setPrefix(color);
+        Bukkit.getLogger().info("Added player to team with prefix: " + team.getPrefix());
+        teamMap.put(team.getName(), team);
+        Bukkit.getLogger().info("updateNameTag completed for player: " + player.getName());
+    }
+
+
+
     public static ArrayList<String> getBlacklist(){
         return new ArrayList<>(blacklist);
     }
@@ -149,4 +185,5 @@ public final class NameUtilities {
         playerDisplayNames.remove(player);
     }
 }
+
 
