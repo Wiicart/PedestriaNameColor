@@ -113,3 +113,10 @@ nick-too-long: '&fThat nickname is too long!'
 
 # Nickname that is the username of another player not allowed
 username-nick-prohibited: '&fYour nickname cannot be the same as the username of another player.'
+
+# Prohibited nickname:
+nick-blacklist: '&fThat nickname is not allowed!'
+
+# No namecolor styles perms:
+no-perms-style: '&fYou don''t have permission to apply text styles to your name!'
+
