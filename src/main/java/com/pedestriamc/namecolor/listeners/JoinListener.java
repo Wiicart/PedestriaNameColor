@@ -15,7 +15,7 @@ public class JoinListener implements Listener {
         if(player != null){
             // Determines the way the name is set, and uses the proper method to set displayName
             switch (player.getType()) {
-                case NICKNAME -> NameUtilities.setNick(player.getNickname(), event.getPlayer(), false);
+                case NICKNAME -> NameUtilities.setNick(player.getNickname(), event.getPlayer(), false, false);
                 case RGB_COLOR -> NameUtilities.setColor(event.getPlayer(), player.getColor(), false);
                 case CHAT_COLOR -> NameUtilities.setColor(event.getPlayer(), player.getChatColor(), false);
             }
@@ -25,4 +25,3 @@ public class JoinListener implements Listener {
         }
     }
 }
-
