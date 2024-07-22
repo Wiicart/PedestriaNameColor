@@ -1,4 +1,4 @@
-package com.pedestriamc.namecolor.commands;
+ckage com.pedestriamc.namecolor.commands;
 
 import com.pedestriamc.namecolor.Message;
 import com.pedestriamc.namecolor.Messenger;
@@ -45,7 +45,7 @@ public class NicknameCommand implements CommandExecutor {
             }
             if(sender instanceof Player){
                 if (args[0].equalsIgnoreCase("reset")) {
-                    NameUtilities.setNick(sender.getName(),(Player) sender,true);
+                    NameUtilities.setNick(sender.getName(),(Player) sender,true, false);
                     if(notifyChange){
                         Messenger.processPlaceholders(sender, Message.NAME_SET, (Player) sender);
                     }
@@ -67,7 +67,7 @@ public class NicknameCommand implements CommandExecutor {
                         return true;
                     }
                 }
-                NameUtilities.setNick(nick, selectedPlayer,true);
+                NameUtilities.setNick(nick, selectedPlayer,true, false);
                 if(notifyChange){
                     Messenger.processPlaceholders(selectedPlayer, Message.NAME_SET, selectedPlayer);
                 }
@@ -85,7 +85,7 @@ public class NicknameCommand implements CommandExecutor {
         selectedPlayer = Bukkit.getPlayer(args[1]);
         if(selectedPlayer != null){
             if (args[0].equalsIgnoreCase("RESET")) {
-                NameUtilities.setNick(selectedPlayer.getName(), selectedPlayer,true);
+                NameUtilities.setNick(selectedPlayer.getName(), selectedPlayer,true, false);
                 if(notifyChange){
                     Messenger.processPlaceholders(selectedPlayer, Message.NAME_SET, (Player) sender);
                 }
@@ -100,7 +100,7 @@ public class NicknameCommand implements CommandExecutor {
                 Messenger.sendMessage(sender, Message.USERNAME_NICK_PROHIBITED);
                 return true;
             }
-            NameUtilities.setNick(args[0], Bukkit.getPlayer(args[1]), true);
+            NameUtilities.setNick(args[0], Bukkit.getPlayer(args[1]), true, false);
             if(!sender.equals(selectedPlayer)){
                 Messenger.processPlaceholders(sender, Message.NAME_SET_OTHER, selectedPlayer);
             }
