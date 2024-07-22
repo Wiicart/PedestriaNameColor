@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class NameColorCommand implements CommandExecutor {
 
@@ -75,6 +76,14 @@ public class NameColorCommand implements CommandExecutor {
             return true;
         }
         //process additional options such as bold, italics, etc.
+        List<String> styleList = Arrays.asList("BOLD", "UNDERLINE", "ITALICS", "ITALIC", "MAGIC", "STRIKE");
+        for(int i=0; i<args.length; i++){
+            args[i] = args[i].toUpperCase();
+        }
+        if(Arrays.stream(args).anyMatch(styleList::contains) && (!sender.hasPermission("namecolor.set.style") && !sender.hasPermission("namecolor.*") && !sender.hasPermission("namecolor.set.*"))){
+            Messenger.sendMessage(sender, Message.NO_PERMS_STYLE);
+            return true;
+        }
         for(int i = 1; i<args.length; i++){
             switch(args[i].toUpperCase()){
                 case "BOLD":
@@ -108,4 +117,3 @@ public class NameColorCommand implements CommandExecutor {
         return true;
     }
 }
-
