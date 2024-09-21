@@ -1,0 +1,62 @@
+name: NameColor
+version: '${project.version}'
+main: com.pedestriamc.namecolor.NameColor
+api-version: 1.16
+prefix: 'NameColor'
+author: wiicart
+description: A plugin to change user's name colors
+website: 'https://pedestriamc.com'
+softdepend: [Essentials, ProtocolLib]
+commands:
+  namecolor:
+    description: "Changes player's name color"
+    usage: /namecolor <color>
+  nick:
+    description: "Changes a player's nickname"
+    usage: /nick <nickname>
+  nickname:
+    description: "Changes a player's nickname"
+    usage: /nickname <nickname>
+  whois:
+    description: "Determines who has what nickname"
+    usage: /whois <display name>
+  color:
+    description: "Shows bukkit color codes"
+    usage: /color
+  colors:
+    description: "Shows bukkit color codes"
+    usage: /color
+permissions:
+  namecolor.*:
+    description: "All NameColor permissions."
+    default: op
+    children:
+      namecolor.set: true
+      namecolor.set.others: true
+      namecolor.nick: true
+      namecolor.nick.others: true
+      namecolor.whois: true
+  namecolor.set:
+    description: "Allows setting own NameColor"
+    default: true
+  namecolor.set.others:
+    description: "Allows setting other's NameColor"
+    default: op
+  namecolor.nick:
+    description: "Allows players to change their own nickname"
+    default: true
+  namecolor.nick.others:
+    description: "Allows players to change other player's nickname"
+    default: op
+  namecolor.whois:
+    description: "Allows use of the /whois command"
+    default: true
+  namecolor.filter.bypass:
+    description: "Allows bypassing the nickname filters"
+    default: false
+  namecolor.set.style:
+    description: "Allows users to use text styles on their name with /namecolor"
+    default: true
+  namecolor.nick.color:
+    description: "Allows players to use colors in their nicknames"
+    default: true
