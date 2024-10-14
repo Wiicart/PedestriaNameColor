@@ -1,7 +1,6 @@
 package com.pedestriamc.namecolor.user;
 
 import com.pedestriamc.namecolor.NameColor;
-import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -9,7 +8,6 @@ import org.bukkit.entity.Player;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.Properties;
 import java.util.UUID;
 
 /**
@@ -26,11 +24,9 @@ public class DatabaseUserUtil extends UserUtil {
      * @param nameColor NameColor instance
      * @throws Exception thrown when an issue occurs with the connection
      */
-    public DatabaseUserUtil(NameColor nameColor) throws Exception {
-
+    public DatabaseUserUtil(NameColor nameColor, String mode) throws Exception {
         super();
         FileConfiguration configFile = nameColor.getConfig();
-
         String address = configFile.getString("database.host");
         String port = configFile.getString("database.port");
         String user = configFile.getString("database.user");
@@ -38,30 +34,39 @@ public class DatabaseUserUtil extends UserUtil {
         String database = configFile.getString("database.database");
 
         if(address == null || user == null || password == null || port == null || database == null){
-            throw new Exception("Unable to load database");
+            throw new Exception("Invalid database information");
         }
 
-        Properties properties = new Properties();
+        String jdbcUrl;
+        String driverClassName;
 
-        properties.setProperty("dataSourceClassName", "com.mysql.cj.jdbc.MysqlDataSource");
-        properties.setProperty("dataSource.serverName", address);
-        properties.setProperty("dataSource.password", password);
-        properties.setProperty("dataSource.portNumber", port);
-        properties.setProperty("dataSource.user", user);
-        properties.setProperty("dataSource.databaseName", database);
+        switch(mode){
+            case "mysql", "mariadb" -> {
+                jdbcUrl = "jdbc:mariadb://" + address + ":" + port + "/" + database;
+                driverClassName = "org.mariadb.jdbc.Driver";
 
-        HikariConfig config = new HikariConfig(properties);
-        config.setMaximumPoolSize(10);
+            }
+            case "postgresql" -> {
+                jdbcUrl = "jdbc:postgresql://" + address + ":" + port + "/" + database;
+                driverClassName = "org.postgresql.Driver";
+            }
+            default -> throw new Exception("Invalid database type defined");
+        }
 
-        dataSource = new HikariDataSource(config);
+        Bukkit.getLogger().info("[NameColor] Hikari Loading...");
+        HikariDataSource hikariDataSource = new HikariDataSource();
+        hikariDataSource.setDriverClassName(driverClassName);
+        hikariDataSource.setJdbcUrl(jdbcUrl);
+        hikariDataSource.setUsername(user);
+        hikariDataSource.setPassword(password);
+        dataSource = hikariDataSource;
 
-        Connection connection = dataSource.getConnection();
-        String sql = "CREATE TABLE IF NOT EXISTS namecolor_users(uuid varChar(36) primary key, nick varchar(50))";
-        Statement statement = connection.createStatement();
-        statement.executeUpdate(sql);
-
-        statement.close();
-        connection.close();
+        try(Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()){
+            String sql = "CREATE TABLE IF NOT EXISTS namecolor_users(uuid varChar(36) primary key, nick varchar(50))";
+            statement.executeUpdate(sql);
+        }catch(SQLException e){
+            throw new Exception("An error occurred with the database.");
+        }
 
     }
 
@@ -118,4 +123,5 @@ public class DatabaseUserUtil extends UserUtil {
         } catch (Exception ignored) {
         }
     }
+
 }

@@ -47,7 +47,7 @@ public final class NameColor extends JavaPlugin {
     private int maxNicknameLength = 0;
     private final String pluginVersion = "1.9";
     private final short pluginNum = 9;
-    private final String distributor = "spigot";
+    private final String distributor = "pre-release";
     private boolean modifyNameTags;
     private boolean usingSql = false;
     private NameUtilities nameUtilities;
@@ -98,10 +98,10 @@ public final class NameColor extends JavaPlugin {
             return;
         }
 
-        if(mode.equalsIgnoreCase("sql")){
-            getLogger().info("Storage Method: sql");
+        if(mode.equalsIgnoreCase("mysql") || mode.equalsIgnoreCase("mariadb") || mode.equalsIgnoreCase("postgresql")){
+            getLogger().info("Storage Method: database");
             try{
-                userUtil = new DatabaseUserUtil(this);
+                userUtil = new DatabaseUserUtil(this, mode);
                 usingSql = true;
                 return;
             } catch (Exception e) {

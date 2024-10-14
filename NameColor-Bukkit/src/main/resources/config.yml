@@ -27,10 +27,12 @@ mode: auto
 # Storage Mode:
 # Options:
 # - yml
-# - sql
+# - mysql
+# - mariadb
+# - postgresql
 storage: yml
 
-# IF USING SQL, ENTER YOUR INFO IN THE FOLLOWING SETTINGS
+# IF USING ANY DATABASE OPTION, ENTER DATABASE INFO IN THE FOLLOWING SETTINGS:
 database:
   host: localhost
   port: 3306
