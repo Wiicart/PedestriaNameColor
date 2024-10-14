@@ -1,4 +1,4 @@
-package com.pedestriamc.namecolor;
+package com.pedestriamc.namecolor.user;
 
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;

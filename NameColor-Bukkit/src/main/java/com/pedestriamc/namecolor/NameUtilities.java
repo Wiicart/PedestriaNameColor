@@ -1,6 +1,8 @@
 package com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
+import com.pedestriamc.namecolor.user.User;
+import com.pedestriamc.namecolor.user.UserUtil;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;

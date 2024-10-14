@@ -1,22 +1,19 @@
-package com.pedestriamc.namecolor;
+package com.pedestriamc.namecolor.user;
 
+import com.pedestriamc.namecolor.NameColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.UUID;
-
-public class UserUtil {
+public class YamlUserUtil extends UserUtil{
 
     private final NameColor nameColor;
-    private final UserMap userMap;
 
-    public UserUtil(NameColor nameColor){
+    public YamlUserUtil(NameColor nameColor){
+        super();
         this.nameColor = nameColor;
-        userMap = new UserMap();
     }
 
     public void saveUser(User user){
@@ -57,43 +54,14 @@ public class UserUtil {
             }
         }
         if(config.contains(nickPath)){
-            return new User(player,config.getString(nickPath),true);
+            return new User(player, config.getString(nickPath), true);
         }
         return null;
     }
 
-    public UserMap userMap(){ return userMap; }
+    @Override
+    public void disable() {
 
-    /**
-     * A class to store User objects of all online players.
-     */
-    public class UserMap{
-
-        private final HashMap<UUID, User> users = new HashMap<>();
-
-        /**
-         * Adds a User to the UserMap.
-         * @param user The user to be added.
-         */
-        public void addUser(User user){
-            users.put(user.getUuid(), user);
-        }
-
-        /**
-         * Removes a User from the UserMap.
-         * @param uuid The UUID of the User to be removed.
-         */
-        public void removeUser(UUID uuid){
-            users.remove(uuid);
-        }
-
-        /**
-         * Gets a User from the UserMap using UUID.
-         * @param uuid The UUID of the player.
-         * @return The User correlating to the UUID.
-         */
-        public User getUser(UUID uuid){
-            return users.get(uuid);
-        }
     }
+
 }

@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.pedestriamc</groupId>
+    <groupId>com.pedestriamc.namecolor</groupId>
     <artifactId>NameColor</artifactId>
-    <version>1.7</version>
+    <version>1.9</version>
     <modules>
         <module>NameColorAPI</module>
         <module>NameColor-Bukkit</module>
@@ -17,7 +17,7 @@
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spigot.version>1.21-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.16.1-R0.1-SNAPSHOT</spigot.version>
     </properties>
     <url>https://pedestriamc.com</url>
 
@@ -121,27 +121,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.bstats</groupId>
-            <artifactId>bstats-bukkit</artifactId>
-            <version>3.0.2</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.essentialsx</groupId>
-            <artifactId>EssentialsX</artifactId>
-            <version>2.19.7</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.0.1</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tchristofferson</groupId>
-            <artifactId>ConfigUpdater</artifactId>
-            <version>2.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -153,19 +136,6 @@
             <artifactId>spigot</artifactId>
             <version>1.21-R0.1-SNAPSHOT</version>
             <classifier>remapped-mojang</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.themoep</groupId>
-            <artifactId>inventorygui</artifactId>
-            <!--The following version may not be the latest. Check it before using.-->
-            <version>1.6.3-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.comphenix.protocol</groupId>
-            <artifactId>ProtocolLib</artifactId>
-            <version>4.8.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

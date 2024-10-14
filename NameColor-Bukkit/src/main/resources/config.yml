@@ -24,6 +24,21 @@ prefix: '&8[&dNameColor&8] &f'
 #
 mode: auto
 
+# Storage Mode:
+# Options:
+# - yml
+# - sql
+storage: yml
+
+# IF USING SQL, ENTER YOUR INFO IN THE FOLLOWING SETTINGS
+database:
+  host: localhost
+  port: 3306
+  database: db
+  user: username
+  password: password
+
+
 # Default name color:
 # Proper format:
 # &<color code> for Minecraft codes

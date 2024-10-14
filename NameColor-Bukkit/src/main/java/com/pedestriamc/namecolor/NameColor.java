@@ -12,6 +12,9 @@ import com.pedestriamc.namecolor.listeners.LeaveListener;
 import com.pedestriamc.namecolor.tabcompleters.NameColorCommandTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.NicknameTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.WhoIsTabCompleter;
+import com.pedestriamc.namecolor.user.DatabaseUserUtil;
+import com.pedestriamc.namecolor.user.UserUtil;
+import com.pedestriamc.namecolor.user.YamlUserUtil;
 import com.tchristofferson.configupdater.ConfigUpdater;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -42,10 +45,11 @@ public final class NameColor extends JavaPlugin {
     private boolean setOverHeadNames = true;
     private boolean allowUserNick = false;
     private int maxNicknameLength = 0;
-    private final String pluginVersion = "1.7";
-    private final short pluginNum = 7;
-    private final String distributor = "hangar";
+    private final String pluginVersion = "1.9";
+    private final short pluginNum = 9;
+    private final String distributor = "spigot";
     private boolean modifyNameTags;
+    private boolean usingSql = false;
     private NameUtilities nameUtilities;
     private UserUtil userUtil;
     /*
@@ -60,13 +64,14 @@ public final class NameColor extends JavaPlugin {
         setupBlacklistFile();
         getModeFromConfig();
         configSetup();
+        setupUserUtil();
         nameUtilities = new NameUtilities(this);
-        userUtil = new UserUtil(this);
         //setOverHeadName();
         int pluginId = 22112;
         Metrics metrics = new Metrics(this, pluginId);
         metrics.addCustomChart(new SimplePie("mode", this::getMode));
         metrics.addCustomChart(new SimplePie("distributor", this::getDistributor));
+        metrics.addCustomChart(new SimplePie("using_sql", this::isUsingSql));
         registerClasses();
         Messenger.initialize();
         checkUpdate();
@@ -76,13 +81,37 @@ public final class NameColor extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        userUtil.disable();
         this.savePlayersConfig();
         Bukkit.getLogger().info("[NameColor] Disabled.");
     }
     /*
     Private Methods
      */
+
+    private void setupUserUtil(){
+        FileConfiguration config = this.getConfig();
+        String mode = config.getString("storage");
+        if(mode == null){
+            userUtil = new YamlUserUtil(this);
+            getLogger().info("Unable to find storage method.  Defaulting to yml.");
+            return;
+        }
+
+        if(mode.equalsIgnoreCase("sql")){
+            getLogger().info("Storage Method: sql");
+            try{
+                userUtil = new DatabaseUserUtil(this);
+                usingSql = true;
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+                getLogger().info("Failed to load database.");
+                getLogger().info("Defaulting to yml storage.");
+            }
+        }
+        userUtil = new YamlUserUtil(this);
+    }
 
     /*private void loadProtocol(){
         if(getServer().getPluginManager().getPlugin("ProtocolLib") == null){
@@ -271,6 +300,7 @@ public final class NameColor extends JavaPlugin {
     public String getPluginVersion(){ return pluginVersion; }
     public NameUtilities getNameUtilities(){ return nameUtilities; }
     public UserUtil getUserUtil(){ return userUtil; }
+    public String isUsingSql(){ return String.valueOf(usingSql); }
     /*
     Public config methods
      */

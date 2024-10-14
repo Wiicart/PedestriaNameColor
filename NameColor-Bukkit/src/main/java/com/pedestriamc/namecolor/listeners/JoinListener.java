@@ -2,18 +2,20 @@ package com.pedestriamc.namecolor.listeners;
 
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.NameUtilities;
-import com.pedestriamc.namecolor.User;
-import com.pedestriamc.namecolor.UserUtil;
+import com.pedestriamc.namecolor.user.User;
+import com.pedestriamc.namecolor.user.UserUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class JoinListener implements Listener {
 
+    private final NameColor nameColor;
     private final NameUtilities nameUtilities;
     private final UserUtil userUtil;
 
     public JoinListener(NameColor nameColor){
+        this.nameColor = nameColor;
         nameUtilities = nameColor.getNameUtilities();
         userUtil = nameColor.getUserUtil();
     }
@@ -29,7 +31,7 @@ public class JoinListener implements Listener {
                 case CHAT_COLOR -> nameUtilities.setColor(event.getPlayer(), player.getChatColor(), false);
             }
         }else{
-            nameUtilities.setColor(event.getPlayer(), NameColor.getInstance().getDefaultColor(), false);
+            nameUtilities.setColor(event.getPlayer(), nameColor.getDefaultColor(), false);
         }
     }
 }

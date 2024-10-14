@@ -2,7 +2,7 @@ package com.pedestriamc.namecolor.listeners;
 
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.NameUtilities;
-import com.pedestriamc.namecolor.UserUtil;
+import com.pedestriamc.namecolor.user.UserUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
