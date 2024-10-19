@@ -29,7 +29,6 @@ mode: auto
 # - yml
 # - mysql
 # - mariadb
-# - postgresql
 storage: yml
 
 # IF USING ANY DATABASE OPTION, ENTER DATABASE INFO IN THE FOLLOWING SETTINGS:

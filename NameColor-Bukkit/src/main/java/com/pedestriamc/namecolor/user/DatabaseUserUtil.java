@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -24,7 +25,7 @@ public class DatabaseUserUtil extends UserUtil {
      * @param nameColor NameColor instance
      * @throws Exception thrown when an issue occurs with the connection
      */
-    public DatabaseUserUtil(NameColor nameColor, String mode) throws Exception {
+    public DatabaseUserUtil(@NotNull NameColor nameColor, @NotNull String mode) throws Exception {
         super();
         FileConfiguration configFile = nameColor.getConfig();
         String address = configFile.getString("database.host");
@@ -50,10 +51,9 @@ public class DatabaseUserUtil extends UserUtil {
                 jdbcUrl = "jdbc:postgresql://" + address + ":" + port + "/" + database;
                 driverClassName = "org.postgresql.Driver";
             }
-            default -> throw new Exception("Invalid database type defined");
+            default -> throw new Exception("Invalid database type defined.");
         }
 
-        Bukkit.getLogger().info("[NameColor] Hikari Loading...");
         HikariDataSource hikariDataSource = new HikariDataSource();
         hikariDataSource.setDriverClassName(driverClassName);
         hikariDataSource.setJdbcUrl(jdbcUrl);
@@ -72,7 +72,7 @@ public class DatabaseUserUtil extends UserUtil {
 
 
     @Override
-    public void saveUser(User user) {
+    public void saveUser(@NotNull User user) {
 
         String sql = "INSERT INTO namecolor_users(uuid, nick) VALUES (?, ?) ON DUPLICATE KEY UPDATE nick = VALUES(nick)";
 
@@ -96,7 +96,7 @@ public class DatabaseUserUtil extends UserUtil {
     }
 
     @Override
-    public User loadUser(Player player) {
+    public User loadUser(@NotNull Player player) {
 
         String sql = "SELECT * FROM namecolor_users WHERE uuid = ?";
         UUID uuid = player.getUniqueId();

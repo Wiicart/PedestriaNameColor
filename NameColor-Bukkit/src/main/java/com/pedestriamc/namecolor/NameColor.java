@@ -47,7 +47,7 @@ public final class NameColor extends JavaPlugin {
     private int maxNicknameLength = 0;
     private final String pluginVersion = "1.9";
     private final short pluginNum = 9;
-    private final String distributor = "pre-release";
+    private final String distributor = "modrinth";
     private boolean modifyNameTags;
     private boolean usingSql = false;
     private NameUtilities nameUtilities;
