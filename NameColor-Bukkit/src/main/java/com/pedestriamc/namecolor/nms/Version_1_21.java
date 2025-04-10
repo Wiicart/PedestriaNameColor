@@ -34,7 +34,7 @@ public class Version_1_21 implements PlayerNameTagManager {
     }
 
     @Override
-    public void removeOverHeadName(Player player){
+    public void removeOverHeadName(Player player) {
 
     }
 }

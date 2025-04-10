@@ -2,22 +2,19 @@ package com.pedestriamc.namecolor.tabcompleters;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class NicknameTabCompleter implements TabCompleter {
+public class NicknameTabCompleter extends AbstractTabCompleter {
 
-    private final List<String> list = List.of("reset");
+    private static final List<String> RESET = List.of("reset");
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        if(sender instanceof Player){
-            if(args.length == 1 && args[0].length() > 0 && args[0].substring(0,1).equalsIgnoreCase("r")){
-                return list;
-            }
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        if(args.length == 1) {
+            return filter(RESET, args[0]);
         }
-        return null;
+        return EMPTY;
     }
 }

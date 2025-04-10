@@ -5,11 +5,12 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 public abstract class UserUtil {
 
     private final UserMap userMap;
 
-    public UserUtil(){
+    protected UserUtil() {
         userMap = new UserMap();
     }
 
@@ -19,17 +20,16 @@ public abstract class UserUtil {
 
     public abstract void disable();
 
-    public UserMap userMap(){
+    public UserMap userMap() {
         return userMap;
     }
 
-    public class UserMap{
+    public static class UserMap {
 
         private final HashMap<UUID, User> users = new HashMap<>();
 
         public void addUser(User user) {
             users.put(user.getUuid(), user);
-
         }
 
         public void removeUser(UUID uuid) {
@@ -39,7 +39,5 @@ public abstract class UserUtil {
         public User getUser(UUID uuid) {
             return users.get(uuid);
         }
-
     }
-
 }

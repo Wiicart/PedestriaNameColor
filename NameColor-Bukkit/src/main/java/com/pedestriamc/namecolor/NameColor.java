@@ -1,6 +1,7 @@
 package com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
+import com.pedestriamc.common.message.Messenger;
 import com.pedestriamc.namecolor.commands.WhoIsCommand;
 import com.pedestriamc.namecolor.nms.PlayerNameTagManager;
 import com.pedestriamc.namecolor.commands.NameColorCommand;
@@ -9,7 +10,7 @@ import com.pedestriamc.namecolor.gui.GUIListener;
 import com.pedestriamc.namecolor.gui.GUIManager;
 import com.pedestriamc.namecolor.listeners.JoinListener;
 import com.pedestriamc.namecolor.listeners.LeaveListener;
-import com.pedestriamc.namecolor.tabcompleters.NameColorCommandTabCompleter;
+import com.pedestriamc.namecolor.tabcompleters.NameColorTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.NicknameTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.WhoIsTabCompleter;
 import com.pedestriamc.namecolor.user.DatabaseUserUtil;
@@ -45,16 +46,20 @@ public final class NameColor extends JavaPlugin {
     private boolean setOverHeadNames = true;
     private boolean allowUserNick = false;
     private int maxNicknameLength = 0;
-    private final String pluginVersion = "1.9";
+    private final String pluginVersion = "1.9.1";
     private final short pluginNum = 9;
-    private final String distributor = "modrinth";
+    private final String distributor = "spigot";
     private boolean modifyNameTags;
     private boolean usingSql = false;
     private NameUtilities nameUtilities;
     private UserUtil userUtil;
-    /*
-    !! UPDATE VERSION NUMBER WITH EACH UPDATE !!
-     */
+    private Messenger<Message> messenger;
+
+    @Override
+    public void onLoad() {
+
+    }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -72,8 +77,8 @@ public final class NameColor extends JavaPlugin {
         metrics.addCustomChart(new SimplePie("mode", this::getMode));
         metrics.addCustomChart(new SimplePie("distributor", this::getDistributor));
         metrics.addCustomChart(new SimplePie("using_sql", this::isUsingSql));
+        messenger = new Messenger<>(getConfig(), getConfig().getString("prefix", "&8[&dNameColor&8] &f"), Message.class);
         registerClasses();
-        Messenger.initialize();
         checkUpdate();
         //loadProtocol();
         Bukkit.getLogger().info("[NameColor] NameColor version " + pluginVersion + " enabled.");
@@ -89,16 +94,16 @@ public final class NameColor extends JavaPlugin {
     Private Methods
      */
 
-    private void setupUserUtil(){
+    private void setupUserUtil() {
         FileConfiguration config = this.getConfig();
         String mode = config.getString("storage");
-        if(mode == null){
+        if(mode == null) {
             userUtil = new YamlUserUtil(this);
             getLogger().info("Unable to find storage method.  Defaulting to yml.");
             return;
         }
 
-        if(mode.equalsIgnoreCase("mysql") || mode.equalsIgnoreCase("mariadb") || mode.equalsIgnoreCase("postgresql")){
+        if(mode.equalsIgnoreCase("mysql") || mode.equalsIgnoreCase("mariadb") || mode.equalsIgnoreCase("postgresql")) {
             getLogger().info("Storage Method: database");
             try{
                 userUtil = new DatabaseUserUtil(this, mode);
@@ -113,28 +118,8 @@ public final class NameColor extends JavaPlugin {
         userUtil = new YamlUserUtil(this);
     }
 
-    /*private void loadProtocol(){
-        if(getServer().getPluginManager().getPlugin("ProtocolLib") == null){
-            Bukkit.getLogger().info("[NameColor] ProtocolLib unavailable, player name tags will not be modified.");
-            modifyNameTags = false;
-            return;
-        }
-        protocolManager = ProtocolLibrary.getProtocolManager();
-        protocolManager.addPacketListener(new PacketAdapter(this, PacketType.Play.Server.PLAYER_INFO) {
-            @Override
-            public void onPacketSending(PacketEvent e){
-                e.setReadOnly(false);
-                PacketContainer container = e.getPacket();
-                WrappedGameProfile profile = WrappedGameProfile.fromPlayer(e.getPlayer());
-                profile = profile.withName(e.getPlayer().getDisplayName() + "NC");
-                container.getGameProfiles().writeSafely(0, profile);
-                container.getStrings().writeSafely(0,"ng");
-            }
-        });
-    }*/
-
     //Registers commands and listeners
-    private void registerClasses(){
+    private void registerClasses() {
         GUIManager guiManager = new GUIManager();
         GUIListener listener = new GUIListener(guiManager);
         Bukkit.getPluginManager().registerEvents(listener,this);
@@ -145,11 +130,11 @@ public final class NameColor extends JavaPlugin {
             this.getCommand("nick").setExecutor(nicknameCommand);
             this.getCommand("nickname").setExecutor(nicknameCommand);
             this.getCommand("whois").setExecutor(new WhoIsCommand(this));
-            this.getCommand("namecolor").setTabCompleter(new NameColorCommandTabCompleter());
+            this.getCommand("namecolor").setTabCompleter(new NameColorTabCompleter());
             this.getCommand("nick").setTabCompleter(new NicknameTabCompleter());
             this.getCommand("nickname").setTabCompleter(new NicknameTabCompleter());
             this.getCommand("whois").setTabCompleter(new WhoIsTabCompleter());
-        }catch(NullPointerException a){
+        }catch(NullPointerException a) {
             Bukkit.getLogger().info("[NameColor] Unable to register commands!");
         }
         getServer().getPluginManager().registerEvents(new JoinListener(this), this);
@@ -168,19 +153,19 @@ public final class NameColor extends JavaPlugin {
         }
         playersConfig = YamlConfiguration.loadConfiguration(playersFile);
     }
-    private void setupBlacklistFile(){
+    private void setupBlacklistFile() {
         blacklistFile = new File(getDataFolder(), "blacklist.yml");
-        if(!blacklistFile.exists()){
+        if(!blacklistFile.exists()) {
             blacklistFile.getParentFile().mkdirs();
             saveResource("blacklist.yml", false);
         }
         blacklistFileConfig = YamlConfiguration.loadConfiguration(blacklistFile);
     }
     //Gets mode from config file, consider if option set in config is viable
-    private void getModeFromConfig(){
+    private void getModeFromConfig() {
         Essentials essentials;
-        if(config.getString("mode", "auto").equalsIgnoreCase("auto")){
-            if(getServer().getPluginManager().getPlugin("Essentials") != null){
+        if(config.getString("mode", "auto").equalsIgnoreCase("auto")) {
+            if(getServer().getPluginManager().getPlugin("Essentials") != null) {
                 Bukkit.getLogger().info("[NameColor] Using Essentials mode");
                 mode = "essentials";
                 essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
@@ -188,8 +173,8 @@ public final class NameColor extends JavaPlugin {
                 Bukkit.getLogger().info("[NameColor] Essentials plugin not found, using Server mode");
                 mode = "server";
             }
-        }else if(config.getString("mode", "auto").equalsIgnoreCase("essentials")){
-            if(getServer().getPluginManager().getPlugin("Essentials") != null){
+        }else if(config.getString("mode", "auto").equalsIgnoreCase("essentials")) {
+            if(getServer().getPluginManager().getPlugin("Essentials") != null) {
                 Bukkit.getLogger().info("[NameColor] Using Essentials mode");
                 mode = "essentials";
                 essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
@@ -197,7 +182,7 @@ public final class NameColor extends JavaPlugin {
                 Bukkit.getLogger().info("[NameColor] Essentials plugin not found, defaulting to Server mode");
                 mode = "server";
             }
-        }else if(config.getString("mode", "auto").equalsIgnoreCase("server")){
+        }else if(config.getString("mode", "auto").equalsIgnoreCase("server")) {
             Bukkit.getLogger().info("[NameColor] Using Server mode");
             mode = "server";
         }else{
@@ -206,47 +191,47 @@ public final class NameColor extends JavaPlugin {
         }
     }
     // Updates configuration, and gets any necessary config values
-    private void configSetup(){
+    private void configSetup() {
         //Config updater using https://github.com/tchristofferson/Config-Updater
         File configFile = new File(getDataFolder(), "config.yml");
-        if(configFile.exists()){
+        if(configFile.exists()) {
             Bukkit.getLogger().info("[NameColor] Configuration found.");
             try{
                 ConfigUpdater.update(this,"config.yml", configFile);
-            }catch(IOException e){
+            }catch(IOException e) {
                 Bukkit.getLogger().info("[NameColor] Updating config failed.");
                 e.printStackTrace();
             }
         }
         //Default color
-        if(config.getString("default-color") != null){
+        if(config.getString("default-color") != null) {
             defaultColor = config.getString("default-color");
         }else {
             defaultColor = "&f";
         }
         //Nickname length limit, defaults to 16 if null
         maxNicknameLength = config.getInt("max-nickname-length");
-        if(maxNicknameLength == 0){
+        if(maxNicknameLength == 0) {
             maxNicknameLength = 16;
         }
         //Allow nicknames that are the same as another player's username
         allowUserNick = config.getBoolean("allow-username-nicknames");
         notify = config.getBoolean("notify-players", true);
     }
-    private void checkUpdate(){
+    private void checkUpdate() {
         try{
             HttpsURLConnection connection = (HttpsURLConnection) new URL("https://wiicart.net/namecolor/version.txt").openConnection();
             connection.setRequestMethod("GET");
             String raw = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
             short latest = Short.parseShort(raw);
-            if(latest > pluginNum){
+            if(latest > pluginNum) {
                 Bukkit.getLogger().info("+-----------[NameColor]-----------+");
                 Bukkit.getLogger().info("|    A new update is available!   |");
                 Bukkit.getLogger().info("|          Download at:           |");
                 Bukkit.getLogger().info("|  https://wiicart.net/namecolor  |");
                 Bukkit.getLogger().info("+---------------------------------+");
             }
-        } catch(IOException a){
+        } catch(IOException a) {
             Bukkit.getLogger().info("[NameColor] Unable to check for updates.");
         }
     }
@@ -254,13 +239,13 @@ public final class NameColor extends JavaPlugin {
     Object getter methods
      */
     //returns plugin instance
-    public static NameColor getInstance(){
+    public static NameColor getInstance() {
         return instance;
     }
     //returns PlayerNameTag class for version
     public PlayerNameTagManager getOverheadName() { return overHeadNameTagManager; }
     //Returns config file
-    public FileConfiguration getConfigFile(){
+    public FileConfiguration getConfigFile() {
         return config;
     }
     // returns player config file
@@ -269,42 +254,43 @@ public final class NameColor extends JavaPlugin {
     Variable getter methods
      */
     //returns plugin prefix from config, color codes are not processed
-    public String getPrefix(){
+    public String getPrefix() {
         return config.getString("prefix");
     }
     //returns display name setting mode, will be either "server" or "essentials"
-    public String getMode(){
+    public String getMode() {
         return mode;
     }
     //returns plugin distributor, used for bStats
     public String getDistributor() { return distributor; }
     //returns if nicknames that are the same as another player's username are allowed
-    public boolean allowUsernameNicknames(){ return allowUserNick; }
+    public boolean allowUsernameNicknames() { return allowUserNick; }
     //returns if players should be notified that their display name has changed
-    public boolean notifyChange(){
+    public boolean notifyChange() {
         return notify;
     }
     //returns String default color, color codes not processed.
-    public String getDefaultColor(){
+    public String getDefaultColor() {
         return defaultColor;
     }
     //returns if class is assigned to set player name tags
-    public boolean isSetOverHeadNames(){
+    public boolean isSetOverHeadNames() {
         return setOverHeadNames;
     }
     //returns int nickname length limit
-    public int nickLengthLimit(){
+    public int nickLengthLimit() {
         return maxNicknameLength;
     }
     //returns plugin version
-    public String getPluginVersion(){ return pluginVersion; }
-    public NameUtilities getNameUtilities(){ return nameUtilities; }
-    public UserUtil getUserUtil(){ return userUtil; }
-    public String isUsingSql(){ return String.valueOf(usingSql); }
+    public String getPluginVersion() { return pluginVersion; }
+    public NameUtilities getNameUtilities() { return nameUtilities; }
+    public UserUtil getUserUtil() { return userUtil; }
+    public String isUsingSql() { return String.valueOf(usingSql); }
+    public Messenger<Message> getMessenger() { return messenger; }
     /*
     Public config methods
      */
-    public FileConfiguration getBlacklistFileConfig(){
+    public FileConfiguration getBlacklistFileConfig() {
         return blacklistFileConfig;
     }
     //saves players.yml file

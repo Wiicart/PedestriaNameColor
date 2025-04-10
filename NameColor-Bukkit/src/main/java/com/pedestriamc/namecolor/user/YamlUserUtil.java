@@ -7,31 +7,40 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class YamlUserUtil extends UserUtil{
+public class YamlUserUtil extends UserUtil {
 
     private final NameColor nameColor;
 
-    public YamlUserUtil(NameColor nameColor){
+    public YamlUserUtil(NameColor nameColor) {
         super();
         this.nameColor = nameColor;
     }
 
-    public void saveUser(User user){
-        FileConfiguration config = nameColor.getPlayersConfig();
-        if(user != null){
-            config.set("players." + user.getUuid() + ".color", null);
-            config.set("players." + user.getUuid() + ".nick", null);
-            switch (user.getType()) {
-                case RGB_COLOR -> config.set("players." + user.getUuid() + ".color", user.getColor());
-                case CHAT_COLOR -> config.set("players." + user.getUuid() + ".color", user.getChatColor().toString());
-                case NICKNAME -> config.set("players." + user.getUuid() + ".nick", user.getNickname());
+    @SuppressWarnings("DataFlowIssue")
+    @Override
+    public void saveUser(User user) {
+        async(() -> {
+            FileConfiguration config = nameColor.getPlayersConfig();
+            if(user != null) {
+                config.set("players." + user.getUuid() + ".color", null);
+                config.set("players." + user.getUuid() + ".nick", null);
+                switch (user.getType()) {
+                    case RGB_COLOR -> config.set("players." + user.getUuid() + ".color", user.getColor());
+                    case CHAT_COLOR -> config.set("players." + user.getUuid() + ".color", user.getChatColor().toString());
+                    case NICKNAME -> config.set("players." + user.getUuid() + ".nick", user.getNickname());
+                }
+                nameColor.savePlayersConfig();
             }
-            nameColor.savePlayersConfig();
-        }
+        });
     }
 
     @Nullable
-    public User loadUser(Player player){
+    @Override
+    public User loadUser(Player player) {
+        async(() -> {
+
+
+        });
         FileConfiguration config = nameColor.getPlayersConfig();
         String playerUUID = player.getUniqueId().toString();
         String colorPath = "players." + playerUUID + ".color";
@@ -53,15 +62,19 @@ public class YamlUserUtil extends UserUtil{
                 }
             }
         }
-        if(config.contains(nickPath)){
+        if(config.contains(nickPath)) {
             return new User(player, config.getString(nickPath), true);
         }
         return null;
     }
 
+    private void async(Runnable runnable) {
+        Bukkit.getScheduler().runTaskAsynchronously(nameColor, runnable);
+    }
+
     @Override
     public void disable() {
-
+        // No implementation required for yaml storage
     }
 
 }

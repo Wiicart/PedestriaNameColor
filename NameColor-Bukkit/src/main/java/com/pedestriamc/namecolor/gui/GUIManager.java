@@ -12,36 +12,36 @@ import java.util.Map;
 public class GUIManager {
     public final Map<Inventory, InventoryHandler> activeInventories = new HashMap<>();
 
-    public void registerHandledInventory(Inventory inventory, InventoryHandler inventoryHandler){
+    public void registerHandledInventory(Inventory inventory, InventoryHandler inventoryHandler) {
         this.activeInventories.put(inventory, inventoryHandler);
     }
 
-    public void unregisterInventory(Inventory inventory){
+    public void unregisterInventory(Inventory inventory) {
         this.activeInventories.remove(inventory);
     }
 
-    public void handleClick(InventoryClickEvent event){
+    public void handleClick(InventoryClickEvent event) {
         InventoryHandler handler = this.activeInventories.get(event.getInventory());
-        if(handler != null){
+        if(handler != null) {
             handler.onClick(event);
         }
     }
 
-    public void handleOpen(InventoryOpenEvent event){
+    public void handleOpen(InventoryOpenEvent event) {
         InventoryHandler handler = this.activeInventories.get(event.getInventory());
-        if(handler != null){
+        if(handler != null) {
             handler.onOpen(event);
         }
     }
-    public void handleClose(InventoryCloseEvent event){
+    public void handleClose(InventoryCloseEvent event) {
         Inventory inventory = event.getInventory();
         InventoryHandler handler = this.activeInventories.get(inventory);
-        if(handler != null){
+        if(handler != null) {
             handler.onClose(event);
             this.unregisterInventory(inventory);
         }
     }
-    public void openGUI(InventoryGUI gui, Player player){
+    public void openGUI(InventoryGUI gui, Player player) {
         this.registerHandledInventory(gui.getInventory(), gui);
         player.openInventory(gui.getInventory());
     }

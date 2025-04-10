@@ -10,7 +10,7 @@ public class NameColorAPITest {
     /*static Player p = Bukkit.getPlayer("wiicart");
 
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         NameColorAPI api = NameColorAPIProvider.get();
         api.getDisplayName(Bukkit.getOfflinePlayer(p.getUniqueId()));
         api.setDisplayName(p, "test");

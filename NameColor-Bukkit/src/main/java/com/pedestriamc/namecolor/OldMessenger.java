@@ -8,7 +8,8 @@ import org.bukkit.entity.Player;
 
 import java.util.EnumMap;
 
-public final class Messenger {
+@Deprecated
+public final class OldMessenger {
     //Class to send messages based on config, w/prefix
     private static final EnumMap<Message, Object> messageMap = new EnumMap<>(Message.class);
     private static String prefix;
@@ -44,11 +45,9 @@ public final class Messenger {
         defaults.put(Message.INVALID_COLOR, "&fInvalid color!");
         defaults.put(Message.NICK_TOO_LONG, "&fThat nickname is too long!");
         defaults.put(Message.USERNAME_NICK_PROHIBITED, "&fYour nickname cannot be the username of another player.");
-    }
-    //Initialize EnumMap
-    public static void initialize(){
+
         FileConfiguration config = NameColor.getInstance().getConfig();
-        for(Message msg : Message.values()){ //https://www.baeldung.com/java-enum-iteration
+        for(Message msg : Message.values()) { //https://www.baeldung.com/java-enum-iteration
             String configValue = msg.toString().replace("_", "-").toLowerCase();
             try{
                 if (config.isList(configValue)) {
@@ -56,33 +55,32 @@ public final class Messenger {
                 } else {
                     messageMap.put(msg, config.getString(configValue));
                 }
-            }catch(NullPointerException a){
+            }catch(NullPointerException a) {
                 Bukkit.getLogger().info("[NameColor] Unable to find value " + configValue + " in config.yml, resorting to default message.");
                 messageMap.put(msg, defaults.get(msg));
             }
         }
         prefix = config.getString("prefix", "&8[&dNameColor&8] &f");
     }
-    public static void sendMessage(CommandSender sender, Message message){
-        if(messageMap.get(message) instanceof String[] msg){
-            for(String str : msg){
+
+    public static void sendMessage(CommandSender sender, Message message) {
+        if(messageMap.get(message) instanceof String[] msg) {
+            for(String str : msg) {
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
             }
-        }else if(messageMap.get(message) instanceof String){
+        }else if(messageMap.get(message) instanceof String) {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + messageMap.get(message)));
         }else{
             Bukkit.getLogger().info("[NameColor] Unknown object type for message " + message.toString());
         }
     }
-    public static void processPlaceholders(CommandSender sender, Message message, Player player){
-        //sender is who the message is sent to
-        //message is the enum message to be used
-        //player is the player who's info will be used for placeholders
+
+    public static void processPlaceholders(CommandSender sender, Message message, Player player) {
         String finalMessage = (String) messageMap.get(message);
-        while(finalMessage.contains("%display-name%")){
+        while(finalMessage.contains("%display-name%")) {
             finalMessage = finalMessage.replace("%display-name%", player.getDisplayName());
         }
-        while(finalMessage.contains("%username%")){
+        while(finalMessage.contains("%username%")) {
             finalMessage = finalMessage.replace("%username%", player.getName());
         }
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + finalMessage));

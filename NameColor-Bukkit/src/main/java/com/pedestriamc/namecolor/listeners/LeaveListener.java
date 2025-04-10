@@ -13,13 +13,13 @@ public class LeaveListener implements Listener {
     private final NameUtilities nameUtilities;
     private final UserUtil userUtil;
 
-    public LeaveListener(@NotNull NameColor nameColor){
+    public LeaveListener(@NotNull NameColor nameColor) {
         nameUtilities = nameColor.getNameUtilities();
         userUtil = nameColor.getUserUtil();
     }
 
     @EventHandler
-    public void onPlayerLeave(@NotNull PlayerQuitEvent event){
+    public void onPlayerLeave(@NotNull PlayerQuitEvent event) {
         nameUtilities.removePlayer(event.getPlayer());
         userUtil.userMap().removeUser(event.getPlayer().getUniqueId());
     }

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public final class User {
 
-    public enum Type{
+    public enum Type {
         RGB_COLOR, NICKNAME, CHAT_COLOR
     }
 
@@ -19,15 +19,15 @@ public final class User {
     private final Type type;
     private String nickname;
 
-    public User(@NotNull Player player, ChatColor c){
+    public User(@NotNull Player player, ChatColor c) {
         uuid = player.getUniqueId();
         chatColor = c;
         color = null;
         nickname = null;
         type = Type.CHAT_COLOR;
     }
-    public User(@NotNull Player player, String name, boolean isNickname){
-        if(isNickname){
+    public User(@NotNull Player player, String name, boolean isNickname) {
+        if(isNickname) {
             uuid = player.getUniqueId();
             chatColor = null;
             color = null;
@@ -42,20 +42,25 @@ public final class User {
         }
     }
 
-    public UUID getUuid(){
+    public UUID getUuid() {
         return uuid;
     }
-    public Type getType(){
+
+    public Type getType() {
         return type;
     }
-    @Nullable public String getColor(){
+
+    @Nullable public String getColor() {
         return color;
     }
-    @Nullable public ChatColor getChatColor(){
+
+    @Nullable public ChatColor getChatColor() {
         return chatColor;
     }
-    @Nullable public String getNickname(){
+
+    @Nullable public String getNickname() {
         return nickname;
     }
-    public void setNickname(String nickname){ this.nickname = nickname; }
+
+    public void setNickname(String nickname) { this.nickname = nickname; }
 }

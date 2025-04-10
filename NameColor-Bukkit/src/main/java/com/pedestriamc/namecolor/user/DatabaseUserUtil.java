@@ -21,11 +21,10 @@ public class DatabaseUserUtil extends UserUtil {
 
     /**
      * Constructor for DB user Util
-     * https://www.spigotmc.org/threads/guide-datasource-and-try-with-resources-how-to-connect-to-your-database-properly.480002/
      * @param nameColor NameColor instance
-     * @throws Exception thrown when an issue occurs with the connection
+     * @throws SQLException thrown when an issue occurs with the connection
      */
-    public DatabaseUserUtil(@NotNull NameColor nameColor, @NotNull String mode) throws Exception {
+    public DatabaseUserUtil(@NotNull NameColor nameColor, @NotNull String mode) throws SQLException {
         super();
         FileConfiguration configFile = nameColor.getConfig();
         String address = configFile.getString("database.host");
@@ -34,14 +33,14 @@ public class DatabaseUserUtil extends UserUtil {
         String password = configFile.getString("database.password");
         String database = configFile.getString("database.database");
 
-        if(address == null || user == null || password == null || port == null || database == null){
-            throw new Exception("Invalid database information");
+        if(address == null || user == null || password == null || port == null || database == null) {
+            throw new SQLException("Invalid database information");
         }
 
         String jdbcUrl;
         String driverClassName;
 
-        switch(mode){
+        switch(mode) {
             case "mysql", "mariadb" -> {
                 jdbcUrl = "jdbc:mariadb://" + address + ":" + port + "/" + database;
                 driverClassName = "org.mariadb.jdbc.Driver";
@@ -51,7 +50,7 @@ public class DatabaseUserUtil extends UserUtil {
                 jdbcUrl = "jdbc:postgresql://" + address + ":" + port + "/" + database;
                 driverClassName = "org.postgresql.Driver";
             }
-            default -> throw new Exception("Invalid database type defined.");
+            default -> throw new SQLException("Invalid database type defined.");
         }
 
         HikariDataSource hikariDataSource = new HikariDataSource();
@@ -61,11 +60,11 @@ public class DatabaseUserUtil extends UserUtil {
         hikariDataSource.setPassword(password);
         dataSource = hikariDataSource;
 
-        try(Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()){
+        try(Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS namecolor_users(uuid varChar(36) primary key, nick varchar(50))";
             statement.executeUpdate(sql);
-        }catch(SQLException e){
-            throw new Exception("An error occurred with the database.");
+        } catch(SQLException e) {
+            throw new SQLException("An error occurred with the database.");
         }
 
     }
@@ -76,11 +75,11 @@ public class DatabaseUserUtil extends UserUtil {
 
         String sql = "INSERT INTO namecolor_users(uuid, nick) VALUES (?, ?) ON DUPLICATE KEY UPDATE nick = VALUES(nick)";
 
-        try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)){
+        try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, String.valueOf(user.getUuid()));
 
-            switch(user.getType()){
+            switch(user.getType()) {
                 case RGB_COLOR -> statement.setString(2, user.getColor());
                 case CHAT_COLOR -> statement.setString(2, String.valueOf(user.getChatColor()));
                 case NICKNAME -> statement.setString(2, user.getNickname());
@@ -89,7 +88,6 @@ public class DatabaseUserUtil extends UserUtil {
             statement.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
             Bukkit.getLogger().info("[NameColor] ERROR: An error occurred when trying to update the database.");
         }
 
@@ -101,16 +99,18 @@ public class DatabaseUserUtil extends UserUtil {
         String sql = "SELECT * FROM namecolor_users WHERE uuid = ?";
         UUID uuid = player.getUniqueId();
 
-        try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)){
+        try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, String.valueOf(uuid));
             ResultSet results = statement.executeQuery();
-            results.next();
-            String color = results.getString("nick");
-            if (color != null) {
-                return new User(player, color, true);
+            if(results.next()) {
+                String color = results.getString("nick");
+                if (color != null) {
+                    return new User(player, color, true);
+                }
+
             }
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            Bukkit.getLogger().info("[NameColor] ERROR: An error occurred when attempting to load player " + player.getName());
         }
 
         return null;
@@ -120,8 +120,6 @@ public class DatabaseUserUtil extends UserUtil {
     public void disable() {
         try {
             dataSource.getConnection().close();
-        } catch (Exception ignored) {
-        }
+        } catch(Exception ignored) {}
     }
-
 }

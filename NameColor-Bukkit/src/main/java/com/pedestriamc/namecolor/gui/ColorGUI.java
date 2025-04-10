@@ -16,13 +16,13 @@ public class ColorGUI
     private HashMap<ItemStack, ChatColor> colorMap;
 
 
-    public ColorGUI(){
+    public ColorGUI() {
     }
 
-    public void onClick(InventoryClickEvent event){
+    public void onClick(InventoryClickEvent event) {
         int slot = event.getSlot();
         Player player = (Player) event.getWhoClicked();
     }
-    public void onOpen(InventoryOpenEvent event){}
-    public void onClose(InventoryCloseEvent event){}
+    public void onOpen(InventoryOpenEvent event) {}
+    public void onClose(InventoryCloseEvent event) {}
 }

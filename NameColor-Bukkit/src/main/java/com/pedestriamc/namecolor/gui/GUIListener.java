@@ -8,19 +8,19 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 
 public class GUIListener implements Listener {
     GUIManager guiManager;
-    public GUIListener(GUIManager manager){
+    public GUIListener(GUIManager manager) {
         this.guiManager = manager;
     }
     @EventHandler
-    public void onClick(InventoryClickEvent event){
+    public void onClick(InventoryClickEvent event) {
         this.guiManager.handleClick(event);
     }
     @EventHandler
-    public void onOpen(InventoryOpenEvent event){
+    public void onOpen(InventoryOpenEvent event) {
         this.guiManager.handleOpen(event);
     }
     @EventHandler
-    public void onClose(InventoryCloseEvent event){
+    public void onClose(InventoryCloseEvent event) {
         this.guiManager.handleClose(event);
     }
 }

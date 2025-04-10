@@ -3,6 +3,7 @@ package com.pedestriamc.namecolor.api;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("unused")
 public interface NameColorAPI {
 
     /**
