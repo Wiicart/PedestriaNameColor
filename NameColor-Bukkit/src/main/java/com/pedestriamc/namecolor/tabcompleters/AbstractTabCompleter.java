@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public abstract class AbstractTabCompleter implements TabCompleter {
 
     protected static final List<String> EMPTY = List.of();

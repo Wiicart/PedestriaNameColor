@@ -48,7 +48,7 @@
         <dependency>
             <groupId>com.pedestriamc.namecolor</groupId>
             <artifactId>NameColorAPI</artifactId>
-            <version>1.9</version>
+            <version>1.9.1</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

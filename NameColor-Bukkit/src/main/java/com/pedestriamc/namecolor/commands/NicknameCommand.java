@@ -2,7 +2,6 @@ package com.pedestriamc.namecolor.commands;
 
 import com.pedestriamc.common.message.Messenger;
 import com.pedestriamc.namecolor.Message;
-import com.pedestriamc.namecolor.OldMessenger;
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.NameUtilities;
 import net.md_5.bungee.api.ChatColor;
@@ -14,6 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class NicknameCommand implements CommandExecutor {
@@ -57,22 +57,23 @@ public class NicknameCommand implements CommandExecutor {
                 messenger.sendMessage(sender, Message.NO_PERMS);
                 return true;
             }
-            if(sender instanceof Player) {
+            if(sender instanceof Player p) {
                 if (args[0].equalsIgnoreCase("reset")) {
-                    nameUtilities.setDisplayName(sender.getName(),(Player) sender,true);
+                    nameUtilities.setDisplayName(sender.getName(), p,true);
                     if(notifyChange) {
-                        OldMessenger.processPlaceholders(sender, Message.NAME_SET, (Player) sender);
+                        messenger.sendMessage(sender, Message.NAME_SET, getPlaceholders(p));
                     }
                     return true;
                 }
-                selectedPlayer = (Player) sender;
+
                 nick = args[0];
                 if(isNickTooLong(nick)) {
                     messenger.sendMessage(sender, Message.NICK_TOO_LONG);
                     return true;
                 }
+
                 if(!sender.hasPermission("namecolor.filter.bypass")) {
-                    if(isDuplicateNickname(nick, (Player) sender)) {
+                    if(isDuplicateNickname(nick, p)) {
                         messenger.sendMessage(sender, Message.USERNAME_NICK_PROHIBITED);
                         return true;
                     }
@@ -82,17 +83,17 @@ public class NicknameCommand implements CommandExecutor {
                     }
                 }
                 if(!sender.hasPermission("namecolor.nick.color") && !nick.equals(stripColor(nick))) {
-                    nameUtilities.setDisplayName(stripColor(args[0]), selectedPlayer, true);
+                    nameUtilities.setDisplayName(stripColor(args[0]), p, true);
                     if(notifyChange) {
-                        OldMessenger.processPlaceholders(selectedPlayer, Message.NO_NICK_COLOR, selectedPlayer);
+                        messenger.sendMessage(sender, Message.NO_NICK_COLOR, getPlaceholders(p));
                     }
                     return true;
                 }
-                nameUtilities.setDisplayName(nick, selectedPlayer,true);
+                nameUtilities.setDisplayName(nick, p,true);
                 if(notifyChange) {
-                    OldMessenger.processPlaceholders(selectedPlayer, Message.NAME_SET, selectedPlayer);
+                    messenger.sendMessage(p, Message.NAME_SET, getPlaceholders(p));
                 }
-            }else{
+            } else {
                 messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
             }
             return true;
@@ -107,9 +108,9 @@ public class NicknameCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("RESET")) {
                 nameUtilities.setDisplayName(selectedPlayer.getName(), selectedPlayer,true);
                 if(notifyChange) {
-                    OldMessenger.processPlaceholders(selectedPlayer, Message.NAME_SET, (Player) sender);
+                    messenger.sendMessage(sender, Message.NAME_SET, getPlaceholders(selectedPlayer));
                 }
-                OldMessenger.processPlaceholders(sender, Message.NAME_SET_OTHER, (Player) sender);
+                messenger.sendMessage(sender, Message.NAME_SET_OTHER, getPlaceholders(selectedPlayer));
                 return true;
             }
             if(isNickTooLong(args[0])) {
@@ -120,28 +121,29 @@ public class NicknameCommand implements CommandExecutor {
                 messenger.sendMessage(sender, Message.USERNAME_NICK_PROHIBITED);
                 return true;
             }
+
             if(!sender.hasPermission("namecolor.nick.color") && !args[0].equals(stripColor(args[0]))) {
                 nameUtilities.setDisplayName(stripColor(args[0]), Bukkit.getPlayer(args[1]), true);
                 if(!sender.equals(selectedPlayer)) {
-                    OldMessenger.processPlaceholders(sender, Message.NO_NICK_COLOR_OTHER, selectedPlayer);
+                    messenger.sendMessage(sender, Message.NO_NICK_COLOR_OTHER, getPlaceholders(selectedPlayer));
                     if(notifyChange) {
-                        OldMessenger.processPlaceholders(selectedPlayer, Message.NAME_SET, selectedPlayer);
+                        messenger.sendMessage(sender, Message.NAME_SET, getPlaceholders(selectedPlayer));
                     }
                     return true;
                 }
                 if(notifyChange) {
-                    OldMessenger.processPlaceholders(selectedPlayer, Message.NO_NICK_COLOR, selectedPlayer);
+                    messenger.sendMessage(selectedPlayer, Message.NO_NICK_COLOR, getPlaceholders(selectedPlayer));
                 }
                 return true;
             }
             nameUtilities.setDisplayName(args[0], Bukkit.getPlayer(args[1]), true);
             if(!sender.equals(selectedPlayer)) {
-                OldMessenger.processPlaceholders(sender, Message.NAME_SET_OTHER, selectedPlayer);
+                messenger.sendMessage(selectedPlayer, Message.NAME_SET_OTHER, getPlaceholders(selectedPlayer));
             }
             if(notifyChange) {
-                OldMessenger.processPlaceholders(selectedPlayer, Message.NAME_SET, selectedPlayer);
+                messenger.sendMessage(selectedPlayer, Message.NAME_SET, getPlaceholders(selectedPlayer));
             }
-        }else{
+        } else {
             messenger.sendMessage(sender, Message.INVALID_PLAYER);
         }
         return true;
@@ -189,5 +191,9 @@ public class NicknameCommand implements CommandExecutor {
         nickWithNoColor = ChatColor.translateAlternateColorCodes('&', nickWithNoColor);
         nickWithNoColor = ChatColor.stripColor(nickWithNoColor);
         return nickWithNoColor;
+    }
+
+    private Map<String, String> getPlaceholders(Player player) {
+        return Map.of("%display-name%&", player.getDisplayName());
     }
 }

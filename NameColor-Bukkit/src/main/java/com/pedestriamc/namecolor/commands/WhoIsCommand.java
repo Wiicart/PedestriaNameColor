@@ -27,8 +27,7 @@ public class WhoIsCommand implements CommandExecutor {
             if(args.length == 0) {
                 messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
                 return true;
-            }
-            if(args.length > 1) {
+            } else if(args.length > 1) {
                 messenger.sendMessage(sender, Message.INVALID_ARGS_WHOIS);
                 return true;
             }

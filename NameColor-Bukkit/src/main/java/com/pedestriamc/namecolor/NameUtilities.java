@@ -1,6 +1,7 @@
 package com.pedestriamc.namecolor;
 
 import com.earth2me.essentials.Essentials;
+import com.pedestriamc.namecolor.api.Mode;
 import com.pedestriamc.namecolor.user.User;
 import com.pedestriamc.namecolor.user.UserUtil;
 import net.md_5.bungee.api.ChatColor;
@@ -41,8 +42,12 @@ public class NameUtilities {
      * Determines if the plugin is using Essentials
      */
     private void determineMode() {
-        if(nameColor.getMode().equals("essentials")) {
-            essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+        if(nameColor.getMode() == Mode.ESSENTIALS) {
+            try {
+                essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+            } catch(ClassCastException e) {
+                nameColor.warn("An error occurred while finding Essentials: " + e.getMessage());
+            }
             useEssentials = essentials != null;
         }
     }
@@ -51,7 +56,7 @@ public class NameUtilities {
      * Loads the blacklist from blacklist.yml
      */
     private void loadBlacklist() {
-        FileConfiguration blacklistConfig = nameColor.getBlacklistFileConfig();
+        FileConfiguration blacklistConfig = nameColor.getFileManager().getBlacklistConfig();
         List<?> tempList = blacklistConfig.getList("blacklist");
         if(tempList == null) {
             return;

@@ -1,27 +1,34 @@
 package com.pedestriamc.namecolor.user;
 
 import com.pedestriamc.namecolor.NameColor;
+import com.pedestriamc.namecolor.manager.FileManager;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class YamlUserUtil extends UserUtil {
 
     private final NameColor nameColor;
+    private final FileManager fileManager;
+    private final FileConfiguration config;
 
     public YamlUserUtil(NameColor nameColor) {
         super();
         this.nameColor = nameColor;
+        fileManager = nameColor.getFileManager();
+        config = fileManager.getPlayersConfig();
     }
 
     @SuppressWarnings("DataFlowIssue")
     @Override
     public void saveUser(User user) {
-        async(() -> {
-            FileConfiguration config = nameColor.getPlayersConfig();
-            if(user != null) {
+        Objects.requireNonNull(user);
+        nameColor.async(() -> {
+            synchronized(config) {
                 config.set("players." + user.getUuid() + ".color", null);
                 config.set("players." + user.getUuid() + ".nick", null);
                 switch (user.getType()) {
@@ -29,19 +36,14 @@ public class YamlUserUtil extends UserUtil {
                     case CHAT_COLOR -> config.set("players." + user.getUuid() + ".color", user.getChatColor().toString());
                     case NICKNAME -> config.set("players." + user.getUuid() + ".nick", user.getNickname());
                 }
-                nameColor.savePlayersConfig();
             }
+            fileManager.savePlayersFile();
         });
     }
 
     @Nullable
     @Override
     public User loadUser(Player player) {
-        async(() -> {
-
-
-        });
-        FileConfiguration config = nameColor.getPlayersConfig();
         String playerUUID = player.getUniqueId().toString();
         String colorPath = "players." + playerUUID + ".color";
         String nickPath = "players." + playerUUID + ".nick";
@@ -68,13 +70,9 @@ public class YamlUserUtil extends UserUtil {
         return null;
     }
 
-    private void async(Runnable runnable) {
-        Bukkit.getScheduler().runTaskAsynchronously(nameColor, runnable);
-    }
-
     @Override
     public void disable() {
-        // No implementation required for yaml storage
+        // No implementation required for YAML storage
     }
 
 }

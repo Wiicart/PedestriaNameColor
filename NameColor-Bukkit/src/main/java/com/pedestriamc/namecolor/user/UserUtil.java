@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
+//TODO Make both implementations behave like Strings UserUtil
 public abstract class UserUtil {
 
     private final UserMap userMap;
