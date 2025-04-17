@@ -1,8 +1,39 @@
 package com.pedestriamc.namecolor;
 
-public enum Message{
-    NAMECOLOR_HELP, NICKNAME_HELP, WHOIS_HELP, INSUFFICIENT_ARGS, INVALID_PLAYER, NO_PERMS, NAME_SET,
-    NAME_SET_OTHER, WHOIS_MESSAGE, INVALID_ARGS_COLOR, INVALID_ARGS_NICK, INVALID_ARGS_WHOIS, INVALID_CMD_COLOR,
-    INVALID_CMD_NICK, INVALID_COLOR, NICK_TOO_LONG, USERNAME_NICK_PROHIBITED, NICK_BLACKLIST, NO_PERMS_STYLE,
-    NO_NICK_COLOR, NO_NICK_COLOR_OTHER, NO_PERMS_OTHER
+import com.pedestriamc.common.message.CommonMessage;
+
+public enum Message implements CommonMessage {
+    NAMECOLOR_HELP("namecolor-help"),
+    NICKNAME_HELP("nickname-help"),
+    WHOIS_HELP("whois-help"),
+    INSUFFICIENT_ARGS("insufficient_args"),
+    INVALID_PLAYER("invalid-player"),
+    NO_PERMS("no-perms"),
+    NAME_SET("name-set"),
+    NAME_SET_OTHER("name-set-other"),
+    WHOIS_MESSAGE("whois-message"),
+    INVALID_ARGS_COLOR("invalid-args-color"),
+    INVALID_ARGS_NICK("invalid-args-nick"),
+    INVALID_ARGS_WHOIS("invalid-args-whois"),
+    INVALID_CMD_COLOR("invalid-cmd-color"),
+    INVALID_CMD_NICK("invalid-cmd-nick"),
+    INVALID_COLOR("invalid-color"),
+    NICK_TOO_LONG("nick-too-long"),
+    USERNAME_NICK_PROHIBITED("username-nick-prohibited"),
+    NICK_BLACKLIST("nick-blacklist"),
+    NO_PERMS_STYLE("no-perms-style"),
+    NO_NICK_COLOR("no-nick-color"),
+    NO_NICK_COLOR_OTHER("no-nick-color-other"),
+    NO_PERMS_OTHER("no-perms-other");
+
+    private final String key;
+
+    Message(String key) {
+        this.key = key;
+    }
+
+    @Override
+    public String getKey() {
+        return key;
+    }
 }
