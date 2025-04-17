@@ -1,9 +1,11 @@
 package com.pedestriamc.namecolor.commands;
 
+import com.google.common.collect.ImmutableMap;
 import com.pedestriamc.common.message.Messenger;
+import com.pedestriamc.namecolor.user.User;
 import com.pedestriamc.namecolor.Message;
 import com.pedestriamc.namecolor.NameColor;
-import com.pedestriamc.namecolor.NameUtilities;
+import com.pedestriamc.namecolor.user.UserUtil;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -11,180 +13,173 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 public class NameColorCommand implements CommandExecutor {
 
-    private final List<String> colors = List.of(
-            "BLACK",
-            "DARKBLUE",
-            "DARKGREEN",
-            "DARKAQUA",
-            "DARKRED",
-            "DARKPURPLE",
-            "GOLD",
-            "GRAY",
-            "DARKGRAY",
-            "BLUE",
-            "GREEN",
-            "AQUA",
-            "RED",
-            "LIGHTPURPLE",
-            "YELLOW",
-            "WHITE"
-    );
+    // Traditional HEX format, with "&" at the start
+    private static final Pattern SPIGOT_HEX = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
 
-    private final ChatColor[] chatColors = new ChatColor[] {
-            ChatColor.BLACK,
-            ChatColor.DARK_BLUE,
-            ChatColor.DARK_GREEN,
-            ChatColor.DARK_AQUA,
-            ChatColor.DARK_RED,
-            ChatColor.DARK_PURPLE,
-            ChatColor.GOLD,
-            ChatColor.GRAY,
-            ChatColor.DARK_GRAY,
-            ChatColor.BLUE,
-            ChatColor.GREEN,
-            ChatColor.AQUA,
-            ChatColor.RED,
-            ChatColor.LIGHT_PURPLE,
-            ChatColor.YELLOW,
-            ChatColor.WHITE
-    };
+    // Traditional HEX format
+    private static final Pattern STANDARD_HEX = Pattern.compile("^#[a-fA-F0-9]{6}$", Pattern.CASE_INSENSITIVE);
 
-    private final List<String> styleList = List.of(
-            "BOLD",
-            "UNDERLINE",
-            "ITALICS",
-            "ITALIC",
-            "MAGIC",
-            "STRIKE"
-    );
+    private static final Map<String, ChatColor> colorMap;
+    private static final Map<String, ChatColor> styleMap;
 
-    private final boolean notifyPlayer;
-    private final NameUtilities nameUtilities;
+    static {
+        Map<String, ChatColor> tempColorMap = new HashMap<>();
+        tempColorMap.put("BLACK", ChatColor.BLACK);
+        tempColorMap.put("DARKBLUE", ChatColor.DARK_BLUE);
+        tempColorMap.put("DARKGREEN", ChatColor.DARK_GREEN);
+        tempColorMap.put("DARKAQUA", ChatColor.DARK_AQUA);
+        tempColorMap.put("DARKRED", ChatColor.DARK_RED);
+        tempColorMap.put("DARKPURPLE", ChatColor.DARK_PURPLE);
+        tempColorMap.put("GOLD", ChatColor.GOLD);
+        tempColorMap.put("GRAY", ChatColor.GRAY);
+        tempColorMap.put("DARKGRAY", ChatColor.DARK_GRAY);
+        tempColorMap.put("BLUE", ChatColor.BLUE);
+        tempColorMap.put("GREEN", ChatColor.GREEN);
+        tempColorMap.put("AQUA", ChatColor.AQUA);
+        tempColorMap.put("RED", ChatColor.RED);
+        tempColorMap.put("LIGHTPURPLE", ChatColor.LIGHT_PURPLE);
+        tempColorMap.put("YELLOW", ChatColor.YELLOW);
+        tempColorMap.put("WHITE", ChatColor.WHITE);
+        colorMap = ImmutableMap.copyOf(tempColorMap);
+
+        Map<String, ChatColor> tempStyleMap = new HashMap<>();
+        tempStyleMap.put("BOLD", ChatColor.BOLD);
+        tempStyleMap.put("ITALIC", ChatColor.ITALIC);
+        tempStyleMap.put("ITALICS", ChatColor.ITALIC);
+        tempStyleMap.put("UNDERLINE", ChatColor.UNDERLINE);
+        tempStyleMap.put("MAGIC", ChatColor.MAGIC);
+        tempStyleMap.put("STRIKE", ChatColor.STRIKETHROUGH);
+        styleMap = ImmutableMap.copyOf(tempStyleMap);
+    }
+
+    private final boolean notifyChange;
+    private final UserUtil userUtil;
     private final Messenger<Message> messenger;
 
     public NameColorCommand(NameColor nameColor) {
         FileConfiguration config = nameColor.getConfig();
-        notifyPlayer = config.getBoolean("notify-players", true);
-        nameUtilities = nameColor.getNameUtilities();
+        notifyChange = config.getBoolean("notify-players", true);
+        userUtil = nameColor.getUserUtil();
         this.messenger = nameColor.getMessenger();
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-
-        Player selectedPlayer;
-        StringBuilder color = new StringBuilder();
-
-        if(args.length == 0) {
-            messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
+        if(doesNotHavePermission(sender)) {
+            messenger.sendMessage(sender, Message.NO_PERMS);
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("HELP")) {
-            messenger.sendMessage(sender, Message.NAMECOLOR_HELP);
+        if (args.length == 1 && !(sender instanceof Player)) {
+            sender.sendMessage("[NameColor] Console must define a player to execute this command on.");
             return true;
         }
 
-        if(!(sender instanceof Player)) {
-            if(args.length < 2) {
-                messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
-                return true;
-            }
-            Player p = Bukkit.getPlayer(args[args.length - 1]);
-            if(p != null) {
-                selectedPlayer = p;
-            }else{
+        if(args.length > 7) {
+            messenger.sendMessage(sender, Message.INVALID_ARGS_COLOR);
+            return true;
+        }
+
+        String finalArg = args[args.length - 1];
+        Player target = Bukkit.getPlayer(finalArg);
+        if(target == null) {
+            if(!(sender instanceof Player)) {
                 messenger.sendMessage(sender, Message.INVALID_PLAYER);
                 return true;
             }
-        } else {
-            selectedPlayer = (Player) sender;
-            if(forbids(sender, "namecolor.set") && forbids(sender, "namecolor.*")) {
-                messenger.sendMessage(sender, Message.NO_PERMS);
+
+            if(styleMap.get(finalArg.toUpperCase()) == null) {
+                messenger.sendMessage(sender, Message.INVALID_PLAYER);
                 return true;
             }
-            if(args.length >= 2 && Bukkit.getPlayer(args[args.length - 1]) != null) {
-                Player p = Bukkit.getPlayer(args[args.length - 1]);
 
-                if(p != null) {
-                    if (forbids(sender, "namecolor.set.others") && forbids(sender, "namecolor.*")) {
-                        messenger.sendMessage(sender, Message.NO_PERMS);
-                        return true;
-                    }
-                    selectedPlayer = p;
-                } else {
-                    messenger.sendMessage(sender, Message.INVALID_PLAYER);
-                    return true;
-                }
-            }
+            target = (Player) sender;
         }
 
+        StringBuilder builder = new StringBuilder();
 
-        if(colors.contains(args[0].toUpperCase())) {
-
-            color.append(chatColors[colors.indexOf(args[0].toUpperCase())]);
-
-        } else if(args[0].toUpperCase().matches(("^#[a-fA-F0-9]{6}$"))) {
-
-            color.append("&");
-            color.append(args[0].toUpperCase());
-
-        } else {
-
-            messenger.sendMessage(sender, Message.INVALID_ARGS_COLOR);
-            return true;
-
-        }
-
-        for(int i=0; i<args.length; i++) {
-            args[i] = args[i].toUpperCase();
-        }
-
-        if(Arrays.stream(args).anyMatch(styleList::contains) && (
-                forbids(sender, "namecolor.set.style") &&
-                forbids(sender, "namecolor.*") &&
-                forbids(sender, "namecolor.set.*")
-        )) {
-            messenger.sendMessage(sender, Message.NO_PERMS_STYLE);
+        String color = args[0].toUpperCase();
+        if(isNotColor(color)) {
+            messenger.sendMessage(sender, Message.INVALID_COLOR);
             return true;
         }
-        for(int i = 1; i<args.length; i++) {
-            switch(args[i].toUpperCase()) {
-                case "BOLD" -> color.append("&l");
-                case "UNDERLINE" -> color.append("&n");
-                case "ITALICS", "ITALIC" -> color.append("&o");
-                case "MAGIC" -> color.append("&k");
-                case "STRIKE" -> color.append("&m");
-                default -> {}
-            }
+        builder.append(processColor(color));
+
+        if(hasStylePermission(sender)) {
+            appendStyles(builder, args);
         }
-        color.append(selectedPlayer.getName());
-        nameUtilities.setDisplayName(color.toString(), selectedPlayer, true);
+        builder.append(target.getName());
 
-        HashMap<String, String> placeholders = new HashMap<>();
-        placeholders.put("%display-name%", selectedPlayer.getDisplayName());
-        placeholders.put("%username%", selectedPlayer.getName());
+        User user = userUtil.getUser(target.getUniqueId());
+        user.setDisplayName(builder.toString());
+        userUtil.saveUser(user);
 
-        if(!sender.equals(selectedPlayer)) {
-            messenger.sendMessage(sender, Message.NAME_SET_OTHER, placeholders);
+        if(!sender.equals(target)) {
+            messenger.sendMessage(sender, Message.NAME_SET_OTHER, getPlaceholders(target));
         }
 
-        if(notifyPlayer) {
-            messenger.sendMessage(selectedPlayer, Message.NAME_SET, placeholders);
+        if(notifyChange) {
+            messenger.sendMessage(target, Message.NAME_SET, getPlaceholders(target));
         }
 
         return true;
-
     }
 
-    public boolean forbids(CommandSender sender, String permission) {
-        return !sender.hasPermission(permission);
+    // Makes HEX codes without & have &, ignores other color codes bc NameUtilities will handle those.
+    private String processColor(@NotNull String color) {
+        if(STANDARD_HEX.matcher(color).matches()) {
+            color = "&" + color;
+        }
+
+        if(colorMap.containsKey(color)) {
+            color = String.valueOf(colorMap.get(color));
+        }
+
+        return color;
+    }
+
+    private boolean isNotColor(String color) {
+        return !SPIGOT_HEX.matcher(color).matches() && !STANDARD_HEX.matcher(color).matches() && !colorMap.containsKey(color);
+    }
+
+    private void appendStyles(@NotNull StringBuilder builder, String @NotNull [] args) {
+        for(String arg : args) {
+            ChatColor style = styleMap.get(arg.toUpperCase());
+            if(style != null) {
+                builder.append(style);
+            }
+        }
+    }
+
+    private boolean doesNotHavePermission(CommandSender sender) {
+        return !(sender.isOp() ||
+                sender.hasPermission("*") ||
+                sender.hasPermission("namecolor.*") ||
+                sender.hasPermission("namecolor.set") ||
+                sender.hasPermission("namecolor.set.*"));
+    }
+
+    private boolean hasStylePermission(CommandSender sender) {
+        return sender.isOp() ||
+                sender.hasPermission("namecolor.*") ||
+                sender.hasPermission("namecolor.set.*") ||
+                sender.hasPermission("namecolor.set.style");
+    }
+
+    @Contract("_ -> new")
+    private @NotNull @Unmodifiable Map<String, String> getPlaceholders(@NotNull Player player) {
+        return Map.of(
+                "%display-name%", player.getDisplayName(),
+                "%username%", player.getName()
+        );
     }
 }

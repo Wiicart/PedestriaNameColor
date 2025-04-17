@@ -42,12 +42,12 @@ public final class NameColor extends JavaPlugin {
         fileManager = new FileManager(this);
         determineMode();
         loadOptions();
+        instantiateClasses();
         setupUserUtil();
     }
 
     @Override
     public void onEnable() {
-        instantiateClasses();
         ClassRegistryManager.registerClasses(this);
         checkForUpdate();
         initializeMetrics();
@@ -65,7 +65,7 @@ public final class NameColor extends JavaPlugin {
         Collection<? extends Player> players = getServer().getOnlinePlayers();
         if(!players.isEmpty()) {
             for(Player p : players) {
-                userUtil.loadUser(p);
+                userUtil.loadUser(p.getUniqueId());
             }
         }
     }

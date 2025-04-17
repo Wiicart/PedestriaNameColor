@@ -1,44 +1,29 @@
 package com.pedestriamc.namecolor.user;
 
-import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("unused")
-//TODO Make both implementations behave like Strings UserUtil
-public abstract class UserUtil {
+public interface UserUtil {
 
-    private final UserMap userMap;
+    void saveUser(@NotNull User user);
 
-    protected UserUtil() {
-        userMap = new UserMap();
-    }
+    @SuppressWarnings("UnusedReturnValue")
+    User loadUser(@NotNull UUID uuid);
 
-    public abstract void saveUser(User user);
+    @SuppressWarnings("UnusedReturnValue")
+    CompletableFuture<User> loadUserAsync(@NotNull UUID uuid);
 
-    public abstract User loadUser(Player player);
+    User getUser(UUID uuid);
 
-    public abstract void disable();
+    void addUser(User user);
 
-    public UserMap userMap() {
-        return userMap;
-    }
+    void removeUser(UUID uuid);
 
-    public static class UserMap {
+    void disable();
 
-        private final HashMap<UUID, User> users = new HashMap<>();
-
-        public void addUser(User user) {
-            users.put(user.getUuid(), user);
-        }
-
-        public void removeUser(UUID uuid) {
-            users.remove(uuid);
-        }
-
-        public User getUser(UUID uuid) {
-            return users.get(uuid);
-        }
-    }
+    Set<User> getUsers();
 }

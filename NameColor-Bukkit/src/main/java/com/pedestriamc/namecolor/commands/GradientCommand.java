@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.pedestriamc.namecolor.Message.*;
 
+@SuppressWarnings("unused")
 public class GradientCommand implements CommandExecutor {
 
     private final Messenger<Message> messenger;

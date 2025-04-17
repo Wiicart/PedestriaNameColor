@@ -23,28 +23,36 @@ public class WhoIsCommand implements CommandExecutor {
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if(sender.hasPermission("namecolor.whois") || sender.hasPermission("namecolor.*")) {
-            if(args.length == 0) {
-                messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
-                return true;
-            } else if(args.length > 1) {
-                messenger.sendMessage(sender, Message.INVALID_ARGS_WHOIS);
-                return true;
-            }
-
-            String p = nameUtilities.getPlayerName(args[0]);
-            if(p == null) {
-                messenger.sendMessage(sender, Message.INVALID_PLAYER);
-            } else {
-                HashMap<String, String> placeholders = new HashMap<>();
-                placeholders.put("%display-name%", Bukkit.getPlayer(p).getDisplayName());
-                placeholders.put("%username%", p);
-                messenger.sendMessage(sender, Message.WHOIS_MESSAGE, placeholders);
-            }
-
-        } else {
+        if(doesNotHavePermission(sender)) {
             messenger.sendMessage(sender, Message.NO_PERMS);
+            return true;
         }
+
+        if(args.length == 0) {
+            messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
+            return true;
+        } else if(args.length > 1) {
+            messenger.sendMessage(sender, Message.INVALID_ARGS_WHOIS);
+            return true;
+        }
+
+        String p = nameUtilities.getPlayerName(args[0]);
+        if(p == null) {
+            messenger.sendMessage(sender, Message.INVALID_PLAYER);
+        } else {
+            HashMap<String, String> placeholders = new HashMap<>();
+            placeholders.put("%display-name%", Bukkit.getPlayer(p).getDisplayName());
+            placeholders.put("%username%", p);
+            messenger.sendMessage(sender, Message.WHOIS_MESSAGE, placeholders);
+        }
+
         return true;
+    }
+
+    private boolean doesNotHavePermission(CommandSender sender) {
+        return !(sender.isOp() &&
+                sender.hasPermission("*") &&
+                sender.hasPermission("namecolor.*") &&
+                sender.hasPermission("namecolor.whois"));
     }
 }

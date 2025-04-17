@@ -2,6 +2,7 @@ package com.pedestriamc.namecolor.nms;
 
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("all")
 public class Version_1_21 implements PlayerNameTagManager {
 
     @Override
@@ -35,7 +36,7 @@ public class Version_1_21 implements PlayerNameTagManager {
 
     @Override
     public void removeOverHeadName(Player player) {
-
+        // not implemented
     }
 }
 

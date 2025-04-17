@@ -20,7 +20,7 @@ public class LeaveListener implements Listener {
 
     @EventHandler
     public void onPlayerLeave(@NotNull PlayerQuitEvent event) {
+        userUtil.removeUser(event.getPlayer().getUniqueId());
         nameUtilities.removePlayer(event.getPlayer());
-        userUtil.userMap().removeUser(event.getPlayer().getUniqueId());
     }
 }

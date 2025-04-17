@@ -4,6 +4,8 @@ import com.pedestriamc.common.message.Messenger;
 import com.pedestriamc.namecolor.Message;
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.NameUtilities;
+import com.pedestriamc.namecolor.user.User;
+import com.pedestriamc.namecolor.user.UserUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -25,6 +27,7 @@ public class NicknameCommand implements CommandExecutor {
 
     private final Messenger<Message> messenger;
     private final NameUtilities nameUtilities;
+    private final UserUtil userUtil;
 
     // Should players be notified when their nickname is changed?
     private final boolean notifyChange;
@@ -35,11 +38,10 @@ public class NicknameCommand implements CommandExecutor {
     // The max integer nick length, excluding colors.
     private final int maxLength;
 
-
-
     public NicknameCommand(@NotNull NameColor nameColor) {
         messenger = nameColor.getMessenger();
         nameUtilities = nameColor.getNameUtilities();
+        userUtil = nameColor.getUserUtil();
 
         FileConfiguration config = nameColor.getConfig();
         notifyChange = config.getBoolean("notify-players", true);
@@ -136,7 +138,7 @@ public class NicknameCommand implements CommandExecutor {
             return false;
         }
 
-        if(!allowUserNick && !nick.equalsIgnoreCase(target.getName()) && matchesUsername(nick)) {
+        if(!allowUserNick && !nick.equalsIgnoreCase(target.getName()) && doesMatchOtherUsername(nick)) {
             messenger.sendMessage(sender, Message.USERNAME_NICK_PROHIBITED);
             return false;
         }
@@ -156,7 +158,7 @@ public class NicknameCommand implements CommandExecutor {
         return stripped;
     }
 
-    private boolean matchesUsername(@NotNull String nick) {
+    private boolean doesMatchOtherUsername(@NotNull String nick) {
         for(OfflinePlayer player : Bukkit.getOfflinePlayers()) {
             String name = player.getName();
             if(name != null && name.equalsIgnoreCase(nick)) {
@@ -173,7 +175,10 @@ public class NicknameCommand implements CommandExecutor {
      * @param nick The new nickname
      */
     private void updateTarget(@NotNull CommandSender sender, @NotNull Player target, @NotNull String nick) {
-        nameUtilities.setDisplayName(nick, target, true);
+        User user = userUtil.getUser(target.getUniqueId());
+        user.setDisplayName(nick);
+        userUtil.saveUser(user);
+
         if(!sender.equals(target)) {
             messenger.sendMessage(sender, Message.NAME_SET_OTHER, getPlaceholders(target));
         }
@@ -192,7 +197,11 @@ public class NicknameCommand implements CommandExecutor {
     private void updateTargetStripped(@NotNull CommandSender sender, @NotNull Player target, @NotNull String nick) {
         nick = stripColor(nick);
         boolean modifyingOther = !sender.equals(target);
-        nameUtilities.setDisplayName(nick, target, true);
+
+        User user = userUtil.getUser(target.getUniqueId());
+        user.setDisplayName(nick);
+        userUtil.saveUser(user);
+
         if(modifyingOther) {
             messenger.sendMessage(sender, Message.NO_NICK_COLOR_OTHER, getPlaceholders(target));
         }

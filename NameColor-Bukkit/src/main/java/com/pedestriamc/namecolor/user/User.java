@@ -1,66 +1,44 @@
 package com.pedestriamc.namecolor.user;
 
-import net.md_5.bungee.api.ChatColor;
+import com.pedestriamc.namecolor.NameUtilities;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public final class User {
 
-    public enum Type {
-        RGB_COLOR, NICKNAME, CHAT_COLOR
-    }
-
+    private final NameUtilities nameUtilities;
     private final UUID uuid;
-    private final ChatColor chatColor;
-    private final String color;
-    private final Type type;
-    private String nickname;
+    private final Player player;
+    private String displayName;
 
-    public User(@NotNull Player player, ChatColor c) {
-        uuid = player.getUniqueId();
-        chatColor = c;
-        color = null;
-        nickname = null;
-        type = Type.CHAT_COLOR;
-    }
-    public User(@NotNull Player player, String name, boolean isNickname) {
-        if(isNickname) {
-            uuid = player.getUniqueId();
-            chatColor = null;
-            color = null;
-            nickname = name;
-            type = Type.NICKNAME;
-        }else{
-            uuid = player.getUniqueId();
-            chatColor = null;
-            color = name;
-            type = Type.RGB_COLOR;
-            nickname = null;
-        }
+    public User(NameUtilities nameUtilities, UUID uuid) {
+        this.nameUtilities = nameUtilities;
+        this.uuid = uuid;
+        player = Objects.requireNonNull(Bukkit.getPlayer(uuid));
     }
 
+    public User(NameUtilities nameUtilities, UUID uuid, String displayName) {
+        this(nameUtilities, uuid);
+        setDisplayName(displayName);
+    }
+
+
+    @NotNull
     public UUID getUuid() {
         return uuid;
     }
 
-    public Type getType() {
-        return type;
+    @NotNull
+    public String getDisplayName() {
+        return displayName != null ? displayName : player.getDisplayName();
     }
 
-    @Nullable public String getColor() {
-        return color;
+    public void setDisplayName(@NotNull String displayName) {
+        this.displayName = displayName;
+        nameUtilities.setDisplayName(displayName, player);
     }
-
-    @Nullable public ChatColor getChatColor() {
-        return chatColor;
-    }
-
-    @Nullable public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) { this.nickname = nickname; }
 }
