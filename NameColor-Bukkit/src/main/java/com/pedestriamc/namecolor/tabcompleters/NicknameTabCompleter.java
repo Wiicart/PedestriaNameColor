@@ -8,12 +8,12 @@ import java.util.List;
 
 public class NicknameTabCompleter extends AbstractTabCompleter {
 
-    private static final List<String> RESET = List.of("reset");
+    private static final List<String> ARGS = List.of("reset", "help");
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if(args.length == 1) {
-            return filter(RESET, args[0]);
+            return filter(ARGS, args[0]);
         }
         return EMPTY;
     }

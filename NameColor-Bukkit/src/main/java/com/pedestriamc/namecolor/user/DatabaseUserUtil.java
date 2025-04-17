@@ -2,7 +2,6 @@ package com.pedestriamc.namecolor.user;
 
 import com.pedestriamc.namecolor.NameColor;
 import com.zaxxer.hikari.HikariDataSource;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +17,7 @@ import java.util.UUID;
 public class DatabaseUserUtil extends UserUtil {
 
     private final DataSource dataSource;
+    private final NameColor nameColor;
 
     /**
      * Constructor for DB user Util
@@ -26,6 +26,7 @@ public class DatabaseUserUtil extends UserUtil {
      */
     public DatabaseUserUtil(@NotNull NameColor nameColor, @NotNull String mode) throws SQLException {
         super();
+        this.nameColor = nameColor;
         FileConfiguration configFile = nameColor.getConfig();
         String address = configFile.getString("database.host");
         String port = configFile.getString("database.port");
@@ -72,30 +73,29 @@ public class DatabaseUserUtil extends UserUtil {
 
     @Override
     public void saveUser(@NotNull User user) {
+        nameColor.async(() -> {
+            String sql = "INSERT INTO namecolor_users(uuid, nick) VALUES (?, ?) ON DUPLICATE KEY UPDATE nick = VALUES(nick)";
 
-        String sql = "INSERT INTO namecolor_users(uuid, nick) VALUES (?, ?) ON DUPLICATE KEY UPDATE nick = VALUES(nick)";
+            try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, String.valueOf(user.getUuid()));
 
-            statement.setString(1, String.valueOf(user.getUuid()));
+                switch(user.getType()) {
+                    case RGB_COLOR -> statement.setString(2, user.getColor());
+                    case CHAT_COLOR -> statement.setString(2, String.valueOf(user.getChatColor()));
+                    case NICKNAME -> statement.setString(2, user.getNickname());
+                }
 
-            switch(user.getType()) {
-                case RGB_COLOR -> statement.setString(2, user.getColor());
-                case CHAT_COLOR -> statement.setString(2, String.valueOf(user.getChatColor()));
-                case NICKNAME -> statement.setString(2, user.getNickname());
+                statement.executeUpdate();
+
+            } catch (SQLException e) {
+                nameColor.warn("[NameColor] ERROR: An error occurred when trying to update the database.");
             }
-
-            statement.executeUpdate();
-
-        } catch (SQLException e) {
-            Bukkit.getLogger().info("[NameColor] ERROR: An error occurred when trying to update the database.");
-        }
-
+        });
     }
 
     @Override
     public User loadUser(@NotNull Player player) {
-
         String sql = "SELECT * FROM namecolor_users WHERE uuid = ?";
         UUID uuid = player.getUniqueId();
 
@@ -110,9 +110,8 @@ public class DatabaseUserUtil extends UserUtil {
 
             }
         } catch (SQLException throwables) {
-            Bukkit.getLogger().info("[NameColor] ERROR: An error occurred when attempting to load player " + player.getName());
+            nameColor.warn("[NameColor] ERROR: An error occurred when attempting to load player " + player.getName());
         }
-
         return null;
     }
 

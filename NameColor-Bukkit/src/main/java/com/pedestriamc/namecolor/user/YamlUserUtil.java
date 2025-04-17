@@ -19,7 +19,7 @@ public class YamlUserUtil extends UserUtil {
     public YamlUserUtil(NameColor nameColor) {
         super();
         this.nameColor = nameColor;
-        fileManager = nameColor.getFileManager();
+        fileManager = nameColor.files();
         config = fileManager.getPlayersConfig();
     }
 

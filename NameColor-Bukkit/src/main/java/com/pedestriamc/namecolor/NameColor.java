@@ -32,13 +32,10 @@ public final class NameColor extends JavaPlugin {
     private UserUtil userUtil;
     private Messenger<Message> messenger;
 
-    private boolean notify;
-    private boolean allowUserNick;
     private boolean usingSql;
 
     private Mode mode;
     private String defaultColor;
-    private int maxNicknameLength;
 
     @Override
     public void onLoad() {
@@ -116,30 +113,23 @@ public final class NameColor extends JavaPlugin {
      */
     private void determineMode() {
         String pluginMode = Objects.requireNonNullElse(getConfig().getString("mode"), "auto");
-        switch (pluginMode) {
-            case "server" -> mode = Mode.SERVER;
+        if(pluginMode.equalsIgnoreCase("server")) {
+            mode = Mode.SERVER;
+            return;
+        }
 
-            case "auto", "essentials", default -> {
-                if(getServer().getPluginManager().getPlugin("Essentials") != null) {
-                    info("Essentials plugin found, using Essentials mode.");
-                    mode = Mode.ESSENTIALS;
-                } else {
-                    info("Essentials plugin not found, defaulting to server mode.");
-                    mode = Mode.SERVER;
-                }
-            }
+        if(getServer().getPluginManager().getPlugin("Essentials") != null) {
+            info("Essentials plugin found, using Essentials mode.");
+            mode = Mode.ESSENTIALS;
+        } else {
+            info("Essentials plugin not found, defaulting to server mode.");
+            mode = Mode.SERVER;
         }
     }
 
     private void loadOptions() {
         FileConfiguration config = getConfig();
         defaultColor = Objects.requireNonNullElse(config.getString("default-color"), "&f");
-
-        int nickLength = config.getInt("max-nickname-length");
-        maxNicknameLength = nickLength <= 0 ? 16 : nickLength;
-
-        allowUserNick = config.getBoolean("allow-username-nicknames");
-        notify = config.getBoolean("notify-players", true);
     }
 
     private void checkForUpdate() {
@@ -174,18 +164,8 @@ public final class NameColor extends JavaPlugin {
 
     public String getDistributor() { return DISTRIBUTOR; }
 
-    public boolean allowUsernameNicknames() { return allowUserNick; }
-
-    public boolean notifyChange() {
-        return notify;
-    }
-
     public String getDefaultColor() {
         return defaultColor;
-    }
-
-    public int nickLengthLimit() {
-        return maxNicknameLength;
     }
 
     public NameUtilities getNameUtilities() { return nameUtilities; }
@@ -196,7 +176,7 @@ public final class NameColor extends JavaPlugin {
 
     public Messenger<Message> getMessenger() { return messenger; }
 
-    public FileManager getFileManager() {
+    public FileManager files() {
         return fileManager;
     }
 

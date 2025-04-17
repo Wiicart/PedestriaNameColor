@@ -56,7 +56,7 @@ public class NameUtilities {
      * Loads the blacklist from blacklist.yml
      */
     private void loadBlacklist() {
-        FileConfiguration blacklistConfig = nameColor.getFileManager().getBlacklistConfig();
+        FileConfiguration blacklistConfig = nameColor.files().getBlacklistConfig();
         List<?> tempList = blacklistConfig.getList("blacklist");
         if(tempList == null) {
             return;
@@ -126,6 +126,10 @@ public class NameUtilities {
      */
     public List<String> getBlacklist() {
         return new ArrayList<>(blacklist);
+    }
+
+    public boolean isBlacklisted(String nick) {
+        return blacklist.contains(nick.toLowerCase());
     }
 
 

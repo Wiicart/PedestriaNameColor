@@ -50,7 +50,7 @@ default-color: '&f'
 # Maximum nickname length, ignoring color codes.
 max-nickname-length: 16
 
-# Allow nicknames that are the username of a player?
+# Allow nicknames that are the username of another player?
 allow-username-nicknames: true
 
 # Notify players when their display name has changed?
@@ -150,3 +150,6 @@ no-nick-color: '&fYou don''t have permission to use colors in nicknames!  Your n
 # %username% will be replaced with
 # the subject's username.
 no-nick-color-other: '&fYou don''t have permission to use colors in nicknames!  &7%username%&f''s new nickname is &f%display-name%.'
+
+# Sent when a player attempts to use a command on another player without permission.
+no-perms-other: '&fYou don''t have permission to use that command on another player.'
