@@ -7,7 +7,6 @@ import com.pedestriamc.namecolor.NameUtilities;
 import com.pedestriamc.namecolor.user.User;
 import com.pedestriamc.namecolor.user.UserUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,12 +17,11 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+import static com.pedestriamc.namecolor.NameUtilities.stripColor;
+
 import java.util.Map;
-import java.util.regex.Pattern;
 
 public class NicknameCommand implements CommandExecutor {
-
-    private static final Pattern HEX_PATTERN = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
 
     private final Messenger<Message> messenger;
     private final NameUtilities nameUtilities;
@@ -81,7 +79,7 @@ public class NicknameCommand implements CommandExecutor {
         }
 
         if(!(sender instanceof Player player)) {
-            sender.sendMessage("[NameColor] Console must define a player to execute this command on.");
+            messenger.sendMessage(sender, Message.CONSOLE_MUST_DEFINE_PLAYER);
             return;
         } else {
             target = player;
@@ -133,6 +131,15 @@ public class NicknameCommand implements CommandExecutor {
     private boolean satisfiesConditions(CommandSender sender, Player target, String nick) {
         nick = stripColor(nick);
 
+        if(
+                sender.hasPermission("namecolor.filter.bypass") ||
+                sender.hasPermission("namecolor.*") ||
+                sender.hasPermission("*") ||
+                sender.isOp()
+        ) {
+            return true;
+        }
+
         if(nick.length() > maxLength) {
             messenger.sendMessage(sender, Message.NICK_TOO_LONG);
             return false;
@@ -149,13 +156,6 @@ public class NicknameCommand implements CommandExecutor {
         }
 
         return true;
-    }
-
-    private String stripColor(String str) {
-        String stripped = HEX_PATTERN.matcher(str).replaceAll("");
-        stripped = ChatColor.translateAlternateColorCodes('&', stripped);
-        stripped = ChatColor.stripColor(stripped);
-        return stripped;
     }
 
     private boolean doesMatchOtherUsername(@NotNull String nick) {

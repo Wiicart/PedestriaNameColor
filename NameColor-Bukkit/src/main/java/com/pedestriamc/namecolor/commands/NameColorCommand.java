@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,7 @@ public class NameColorCommand implements CommandExecutor {
         tempColorMap.put("AQUA", ChatColor.AQUA);
         tempColorMap.put("RED", ChatColor.RED);
         tempColorMap.put("LIGHTPURPLE", ChatColor.LIGHT_PURPLE);
+        tempColorMap.put("PINK", ChatColor.LIGHT_PURPLE);
         tempColorMap.put("YELLOW", ChatColor.YELLOW);
         tempColorMap.put("WHITE", ChatColor.WHITE);
         colorMap = ImmutableMap.copyOf(tempColorMap);
@@ -62,13 +64,13 @@ public class NameColorCommand implements CommandExecutor {
         styleMap = ImmutableMap.copyOf(tempStyleMap);
     }
 
-    private final boolean notifyChange;
+    private final boolean notify;
     private final UserUtil userUtil;
     private final Messenger<Message> messenger;
 
     public NameColorCommand(NameColor nameColor) {
         FileConfiguration config = nameColor.getConfig();
-        notifyChange = config.getBoolean("notify-players", true);
+        notify = config.getBoolean("notify-players", true);
         userUtil = nameColor.getUserUtil();
         this.messenger = nameColor.getMessenger();
     }
@@ -80,7 +82,7 @@ public class NameColorCommand implements CommandExecutor {
         }
 
         if (args.length == 1 && !(sender instanceof Player)) {
-            sender.sendMessage("[NameColor] Console must define a player to execute this command on.");
+            messenger.sendMessage(sender, Message.CONSOLE_MUST_DEFINE_PLAYER);
             return true;
         }
 
@@ -97,17 +99,19 @@ public class NameColorCommand implements CommandExecutor {
                 return true;
             }
 
-            if(styleMap.get(finalArg.toUpperCase()) == null) {
+            if(styleMap.get(finalArg.toUpperCase(Locale.ROOT)) == null) {
                 messenger.sendMessage(sender, Message.INVALID_PLAYER);
                 return true;
             }
 
             target = (Player) sender;
+        } else {
+            args[args.length - 1] = "";
         }
 
         StringBuilder builder = new StringBuilder();
 
-        String color = args[0].toUpperCase();
+        String color = args[0].toUpperCase(Locale.ROOT);
         if(isNotColor(color)) {
             messenger.sendMessage(sender, Message.INVALID_COLOR);
             return true;
@@ -127,7 +131,7 @@ public class NameColorCommand implements CommandExecutor {
             messenger.sendMessage(sender, Message.NAME_SET_OTHER, getPlaceholders(target));
         }
 
-        if(notifyChange) {
+        if(notify) {
             messenger.sendMessage(target, Message.NAME_SET, getPlaceholders(target));
         }
 
@@ -153,7 +157,7 @@ public class NameColorCommand implements CommandExecutor {
 
     private void appendStyles(@NotNull StringBuilder builder, String @NotNull [] args) {
         for(String arg : args) {
-            ChatColor style = styleMap.get(arg.toUpperCase());
+            ChatColor style = styleMap.get(arg.toUpperCase(Locale.ROOT));
             if(style != null) {
                 builder.append(style);
             }

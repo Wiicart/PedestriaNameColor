@@ -3,12 +3,9 @@ package com.pedestriamc.namecolor;
 import com.earth2me.essentials.Essentials;
 import com.pedestriamc.namecolor.api.Mode;
 import net.md_5.bungee.api.ChatColor;
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -18,17 +15,15 @@ import java.util.regex.Pattern;
 
 public class NameUtilities {
 
-    private static final Pattern PATTERN = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
+    public static final Pattern SPIGOT_HEX = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
 
     private final NameColor nameColor;
     private boolean usingEssentials;
     private Essentials essentials;
     private final List<String> blacklist;
-    private final BidiMap<Player, String> playerDisplayNames;
 
     public NameUtilities(NameColor nameColor) {
         this.nameColor = nameColor;
-        playerDisplayNames = new DualHashBidiMap<>();
         blacklist = new ArrayList<>();
         loadBlacklist();
         determineMode();
@@ -98,7 +93,7 @@ public class NameUtilities {
      * @param player The player to set the display name of.
      */
     public void setDisplayName(String displayName, Player player) {
-        Matcher matcher = PATTERN.matcher(displayName);
+        Matcher matcher = SPIGOT_HEX.matcher(displayName);
         while(matcher.find()) {
             String hexColor = matcher.group().substring(1).toUpperCase();
             ChatColor color = ChatColor.of(new Color(Integer.parseInt(hexColor.substring(1), 16)));
@@ -111,31 +106,17 @@ public class NameUtilities {
         if(usingEssentials) {
             essentials.getUser(player.getUniqueId()).setNickname(displayName);
         }
-
-        addPlayer(player);
     }
 
     public boolean isBlacklisted(String nick) {
         return blacklist.contains(nick.toLowerCase());
     }
 
-
-    @Nullable
-    public String getPlayerName(String displayName) {
-        if(!playerDisplayNames.containsValue(displayName.toUpperCase())) {
-            return null;
-        }
-        return playerDisplayNames.getKey(displayName.toUpperCase()).getName();
+    public static String stripColor(String str) {
+        String stripped = SPIGOT_HEX.matcher(str).replaceAll("");
+        stripped = org.bukkit.ChatColor.translateAlternateColorCodes('&', stripped);
+        stripped = org.bukkit.ChatColor.stripColor(stripped);
+        return stripped;
     }
 
-    //Adds a username and display name to the hash map
-    public void addPlayer(Player player) {
-        removePlayer(player);
-        playerDisplayNames.put(player, ChatColor.stripColor(player.getDisplayName()).toUpperCase());
-    }
-
-    //Removes player and username from the hash map
-    public void removePlayer(Player player) {
-        playerDisplayNames.remove(player);
-    }
 }

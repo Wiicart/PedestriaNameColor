@@ -53,10 +53,16 @@ permissions:
     default: true
   namecolor.filter.bypass:
     description: "Allows bypassing the nickname filters"
-    default: false
+    default: op
   namecolor.set.style:
     description: "Allows users to use text styles on their name with /namecolor"
     default: true
   namecolor.nick.color:
     description: "Allows players to use colors in their nicknames"
     default: true
+  namecolor.gradient:
+    description: "Allows players to use the /gradient command"
+    default: true
+  namecolor.gradient.other:
+    description: "Allows players to use the /gradient command on other players"
+    default: op

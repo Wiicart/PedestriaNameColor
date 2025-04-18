@@ -12,7 +12,7 @@ public class NameColorTabCompleter extends AbstractTabCompleter {
     private static final List<String> COLORS = List.of(
             "black", "darkblue", "darkgreen", "darkaqua", "darkred",
             "darkpurple", "gold", "gray", "darkgray", "blue", "green", "aqua",
-            "red", "lightpurple", "yellow", "white"
+            "red", "pink", "yellow", "white"
     );
 
     private static final List<String> STYLES = List.of(

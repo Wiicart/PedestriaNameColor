@@ -8,19 +8,9 @@
 prefix: '&8[&dNameColor&8] &f'
 
 # Modes of changing nicknames:
-#  - auto (default)
-#    Automatically chooses the best mode
-#    based on server setup.
-#
+#  - auto (default) - automatically chooses the best mode based on server setup.
 #  - server
-#    Uses the Bukkit API to change names.
-#    Default fallback option.
-#
 #  - essentials
-#    Uses the Essentials API to change names.
-#    Requires EssentialsX.
-#    If you have Essentials installed, this plugin
-#    may not work properly without this mode.
 #
 mode: auto
 
@@ -38,13 +28,6 @@ database:
   database: db
   user: username
   password: password
-
-
-# Default name color:
-# Proper format:
-# &<color code> for Minecraft codes
-# #<rgb> for RGB codes
-default-color: '&f'
 
 # +----- Nickname Settings -----+
 # Maximum nickname length, ignoring color codes.
@@ -153,3 +136,15 @@ no-nick-color-other: '&fYou don''t have permission to use colors in nicknames!  
 
 # Sent when a player attempts to use a command on another player without permission.
 no-perms-other: '&fYou don''t have permission to use that command on another player.'
+
+# Used for the WhoIs command when a player is not found.
+nick-unknown: '&fNo player found with nickname %display-name%&f.'
+
+# Sent when console attempts to run a command without specifying a player.
+define-player: 'Console must define a player to execute this command on.'
+
+# Invalid color for gradient
+invalid-color-hex: '&fInvalid color &7(Proper format: #<HEX>).'
+
+# Invalid usage for gradient
+invalid-usage-gradient: '&fInvalid command usage. &7(Syntax: /gradient <color1> <color2> <player (optional)>)'

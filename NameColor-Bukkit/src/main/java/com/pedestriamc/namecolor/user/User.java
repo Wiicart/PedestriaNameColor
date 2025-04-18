@@ -41,4 +41,8 @@ public final class User {
         this.displayName = displayName;
         nameUtilities.setDisplayName(displayName, player);
     }
+
+    public Player getPlayer() {
+        return player;
+    }
 }

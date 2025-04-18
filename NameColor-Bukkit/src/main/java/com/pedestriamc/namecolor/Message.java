@@ -24,7 +24,11 @@ public enum Message implements CommonMessage {
     NO_PERMS_STYLE("no-perms-style"),
     NO_NICK_COLOR("no-nick-color"),
     NO_NICK_COLOR_OTHER("no-nick-color-other"),
-    NO_PERMS_OTHER("no-perms-other");
+    NO_PERMS_OTHER("no-perms-other"),
+    NICK_UNKNOWN("nick-unknown"),
+    CONSOLE_MUST_DEFINE_PLAYER("define-player"),
+    GRADIENT_INVALID_COLOR("invalid-color-hex"),
+    GRADIENT_INVALID_USAGE("invalid-usage-gradient");
 
     private final String key;
 

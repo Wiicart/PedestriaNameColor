@@ -9,7 +9,6 @@ import com.pedestriamc.namecolor.user.UserUtil;
 import com.pedestriamc.namecolor.user.YamlUserUtil;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,13 +34,11 @@ public final class NameColor extends JavaPlugin {
     private boolean usingSql;
 
     private Mode mode;
-    private String defaultColor;
 
     @Override
     public void onLoad() {
         fileManager = new FileManager(this);
         determineMode();
-        loadOptions();
         instantiateClasses();
         setupUserUtil();
     }
@@ -127,11 +124,6 @@ public final class NameColor extends JavaPlugin {
         }
     }
 
-    private void loadOptions() {
-        FileConfiguration config = getConfig();
-        defaultColor = Objects.requireNonNullElse(config.getString("default-color"), "&f");
-    }
-
     private void checkForUpdate() {
         try {
             HttpsURLConnection connection = (HttpsURLConnection) new URL("https://wiicart.net/namecolor/version.txt").openConnection();
@@ -163,10 +155,6 @@ public final class NameColor extends JavaPlugin {
     }
 
     public String getDistributor() { return DISTRIBUTOR; }
-
-    public String getDefaultColor() {
-        return defaultColor;
-    }
 
     public NameUtilities getNameUtilities() { return nameUtilities; }
 

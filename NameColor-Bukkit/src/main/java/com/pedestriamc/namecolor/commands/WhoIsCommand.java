@@ -4,21 +4,23 @@ import com.pedestriamc.common.message.Messenger;
 import com.pedestriamc.namecolor.Message;
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.NameUtilities;
-import org.bukkit.Bukkit;
+import com.pedestriamc.namecolor.user.User;
+import com.pedestriamc.namecolor.user.UserUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public class WhoIsCommand implements CommandExecutor {
 
-    private final NameUtilities nameUtilities;
+    private final UserUtil userUtil;
     private final Messenger<Message> messenger;
 
     public WhoIsCommand(NameColor nameColor) {
-        nameUtilities = nameColor.getNameUtilities();
+        userUtil = nameColor.getUserUtil();
         messenger = nameColor.getMessenger();
     }
 
@@ -36,23 +38,35 @@ public class WhoIsCommand implements CommandExecutor {
             return true;
         }
 
-        String p = nameUtilities.getPlayerName(args[0]);
-        if(p == null) {
-            messenger.sendMessage(sender, Message.INVALID_PLAYER);
+        String stripped = NameUtilities.stripColor(args[0]);
+        Player player = null;
+        for(User user : userUtil.getUsers()) {
+            if(NameUtilities.stripColor(user.getDisplayName()).equalsIgnoreCase(stripped)) {
+                player = user.getPlayer();
+                break;
+            }
+        }
+
+        if(player == null) {
+            messenger.sendMessage(sender, Message.NICK_UNKNOWN, Map.of("%display-name%", stripped));
         } else {
-            HashMap<String, String> placeholders = new HashMap<>();
-            placeholders.put("%display-name%", Bukkit.getPlayer(p).getDisplayName());
-            placeholders.put("%username%", p);
-            messenger.sendMessage(sender, Message.WHOIS_MESSAGE, placeholders);
+            messenger.sendMessage(sender, Message.WHOIS_MESSAGE, generatePlaceholders(player));
         }
 
         return true;
     }
 
     private boolean doesNotHavePermission(CommandSender sender) {
-        return !(sender.isOp() &&
-                sender.hasPermission("*") &&
-                sender.hasPermission("namecolor.*") &&
+        return !(sender.isOp() ||
+                sender.hasPermission("*") ||
+                sender.hasPermission("namecolor.*") ||
                 sender.hasPermission("namecolor.whois"));
+    }
+
+    private Map<String, String> generatePlaceholders(@NotNull Player player) {
+        return Map.of(
+                "%display-name%", player.getDisplayName(),
+                "%username%", player.getName()
+        );
     }
 }
