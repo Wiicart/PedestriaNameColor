@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Objects;
 
 public final class NameColor extends JavaPlugin {
@@ -151,7 +152,7 @@ public final class NameColor extends JavaPlugin {
     }
 
     public String getModeString() {
-        return String.valueOf(mode);
+        return String.valueOf(mode).toLowerCase(Locale.ROOT);
     }
 
     public String getDistributor() { return DISTRIBUTOR; }

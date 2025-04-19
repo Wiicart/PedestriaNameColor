@@ -26,6 +26,9 @@ commands:
   colors:
     description: "Shows bukkit color codes"
     usage: /color
+  gradient:
+    description: "Applies a gradient to a player's displayname"
+    usage: /gradient <color1> <color2> <player>
 permissions:
   namecolor.*:
     description: "All NameColor permissions."

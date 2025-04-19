@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 public class NameUtilities {
 
+    public static final Pattern HEX = Pattern.compile("#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
+
     public static final Pattern SPIGOT_HEX = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
 
     private final NameColor nameColor;

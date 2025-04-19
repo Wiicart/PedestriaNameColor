@@ -6,8 +6,10 @@ import com.pedestriamc.namecolor.Message;
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.NameUtilities;
 import com.pedestriamc.namecolor.api.color.Gradient;
+import com.pedestriamc.namecolor.api.color.painter.Painter;
 import com.pedestriamc.namecolor.user.User;
 import com.pedestriamc.namecolor.user.UserUtil;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,6 +17,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.awt.Color;
@@ -27,23 +30,23 @@ import static com.pedestriamc.namecolor.Message.*;
 @SuppressWarnings("unused")
 public class GradientCommand implements CommandExecutor {
 
-    private static final Map<String, Color> colors;
+    public static final Map<String, Color> COLORS;
 
     static {
         HashMap<String, Color> temp = new HashMap<>();
         temp.put("BLACK", Color.BLACK);
-        temp.put("BLUE", Color.BLUE);
-        temp.put("GREEN", Color.GREEN);
         temp.put("CYAN", Color.CYAN);
-        temp.put("RED", Color.RED);
         temp.put("WHITE", Color.WHITE);
-        temp.put("YELLOW", Color.YELLOW);
         temp.put("MAGENTA", Color.MAGENTA);
         temp.put("ORANGE", Color.ORANGE);
         temp.put("LIGHTGRAY", Color.LIGHT_GRAY);
-        temp.put("GRAY", Color.GRAY);
-        temp.put("DARKGRAY", Color.DARK_GRAY);
-        colors = ImmutableMap.copyOf(temp);
+        temp.put("RED", ChatColor.RED.getColor());
+        temp.put("GREEN", ChatColor.GREEN.getColor());
+        temp.put("BLUE", ChatColor.BLUE.getColor());
+        temp.put("YELLOW", ChatColor.YELLOW.getColor());
+        temp.put("GRAY", ChatColor.GRAY.getColor());
+        temp.put("DARKGRAY", ChatColor.DARK_GRAY.getColor());
+        COLORS = ImmutableMap.copyOf(temp);
     }
 
     private final Messenger<Message> messenger;
@@ -82,8 +85,7 @@ public class GradientCommand implements CommandExecutor {
             return true;
         }
 
-        String strippedCurrent = NameUtilities.stripColor(target.getDisplayName());
-        String nick = Gradient.apply(color1, color2, strippedCurrent);
+        String nick = Gradient.apply(color1, color2, target.getDisplayName(), Painter.BUNGEE_STRIP_IGNORE_STYLES);
 
         user.setDisplayName(nick);
         userUtil.saveUser(user);
@@ -100,10 +102,24 @@ public class GradientCommand implements CommandExecutor {
     }
 
     private Color processColor(String string) {
-        if(NameUtilities.SPIGOT_HEX.matcher(string).matches()) {
-            return Color.decode(string.substring(1));
+        if(NameUtilities.HEX.matcher(string).matches()) {
+            return Color.decode(string);
         }
-        return colors.get(string.toLowerCase(Locale.ROOT));
+
+        if(NameUtilities.SPIGOT_HEX.matcher(string).matches()) {
+            return decode(string.substring(1));
+        }
+
+        return COLORS.get(string.toUpperCase(Locale.ROOT));
+    }
+
+    @Nullable
+    private Color decode(@NotNull String string) {
+        try {
+            return Color.decode(string);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
 

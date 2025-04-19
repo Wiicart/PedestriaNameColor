@@ -1,11 +1,13 @@
 package com.pedestriamc.namecolor.manager;
 
 import com.pedestriamc.namecolor.NameColor;
+import com.pedestriamc.namecolor.commands.GradientCommand;
 import com.pedestriamc.namecolor.commands.NameColorCommand;
 import com.pedestriamc.namecolor.commands.NicknameCommand;
 import com.pedestriamc.namecolor.commands.WhoIsCommand;
 import com.pedestriamc.namecolor.listeners.JoinListener;
 import com.pedestriamc.namecolor.listeners.LeaveListener;
+import com.pedestriamc.namecolor.tabcompleters.GradientTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.NameColorTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.NicknameTabCompleter;
 import com.pedestriamc.namecolor.tabcompleters.WhoIsTabCompleter;
@@ -33,6 +35,7 @@ public class ClassRegistryManager {
     private void registerCommands() {
         registerCommand("namecolor", new NameColorCommand(nameColor), new NameColorTabCompleter());
         registerCommand("whois", new WhoIsCommand(nameColor), new WhoIsTabCompleter());
+        registerCommand("gradient", new GradientCommand(nameColor), new GradientTabCompleter());
 
         NicknameCommand nicknameCommand = new NicknameCommand(nameColor);
         NicknameTabCompleter nicknameTabCompleter = new NicknameTabCompleter();

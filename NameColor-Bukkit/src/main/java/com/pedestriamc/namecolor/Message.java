@@ -6,7 +6,7 @@ public enum Message implements CommonMessage {
     NAMECOLOR_HELP("namecolor-help"),
     NICKNAME_HELP("nickname-help"),
     WHOIS_HELP("whois-help"),
-    INSUFFICIENT_ARGS("insufficient_args"),
+    INSUFFICIENT_ARGS("insufficient-args"),
     INVALID_PLAYER("invalid-player"),
     NO_PERMS("no-perms"),
     NAME_SET("name-set"),
