@@ -43,7 +43,7 @@ public class YamlUserUtil implements UserUtil {
         Objects.requireNonNull(user);
         nameColor.async(() -> {
             synchronized(config) {
-                config.set(getNickPath(user.getUuid()), user.getDisplayName());
+                config.set(getNickPath(user.getUniqueID()), user.getDisplayName());
             }
             fileManager.savePlayersFile();
         });
@@ -122,7 +122,7 @@ public class YamlUserUtil implements UserUtil {
 
     @Override
     public void addUser(User user) {
-        map.put(user.getUuid(), user);
+        map.put(user.getUniqueID(), user);
     }
 
     @Override

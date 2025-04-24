@@ -2,7 +2,7 @@ package com.pedestriamc.namecolor.api.color.painter;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.regex.Pattern;
 
 public class BungeeStripPainter extends BungeePainter {

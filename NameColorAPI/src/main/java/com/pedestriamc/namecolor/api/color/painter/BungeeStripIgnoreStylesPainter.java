@@ -4,7 +4,7 @@ import com.pedestriamc.namecolor.api.color.Gradient;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -29,7 +29,7 @@ class BungeeStripIgnoreStylesPainter implements Painter {
     @Override
     public @NotNull String apply(@NotNull Color color1, @NotNull Color color2, @NotNull String s) {
         List<String> elements = stripExceptStylesToList(s);
-        List<Color> colors = Gradient.order(color1, color2, elements.size());
+        List<Color> colors = Gradient.interpolate(color1, color2, elements.size());
 
         StringBuilder currentStyle = new StringBuilder();
         StringBuilder builder = new StringBuilder();
@@ -72,7 +72,7 @@ class BungeeStripIgnoreStylesPainter implements Painter {
                 String codes = extractCodes(remainder);
                 if(!codes.isEmpty()) {
                     int length = codes.length();
-                    if(chars.length - i > length) {  // Adjusted to check for a safe index
+                    if(chars.length - i > length) {
                         list.add(codes + chars[i + length]);
                         i += length + 1;
                     } else {

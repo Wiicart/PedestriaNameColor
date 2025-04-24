@@ -1,6 +1,7 @@
 package com.pedestriamc.namecolor.user;
 
 import com.pedestriamc.namecolor.NameUtilities;
+import com.pedestriamc.namecolor.api.NameColorUser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class User {
+public final class User implements NameColorUser {
 
     private final NameUtilities nameUtilities;
     private final UUID uuid;
@@ -28,7 +29,7 @@ public final class User {
 
 
     @NotNull
-    public UUID getUuid() {
+    public UUID getUniqueID() {
         return uuid;
     }
 

@@ -30,8 +30,8 @@ public class NameColorCommand implements CommandExecutor {
     // Traditional HEX format
     private static final Pattern STANDARD_HEX = Pattern.compile("^#[a-fA-F0-9]{6}$", Pattern.CASE_INSENSITIVE);
 
-    private static final Map<String, ChatColor> colorMap;
-    private static final Map<String, ChatColor> styleMap;
+    private static final Map<String, ChatColor> COLOR_MAP;
+    private static final Map<String, ChatColor> STYLE_MAP;
 
     static {
         Map<String, ChatColor> tempColorMap = new HashMap<>();
@@ -52,7 +52,7 @@ public class NameColorCommand implements CommandExecutor {
         tempColorMap.put("PINK", ChatColor.LIGHT_PURPLE);
         tempColorMap.put("YELLOW", ChatColor.YELLOW);
         tempColorMap.put("WHITE", ChatColor.WHITE);
-        colorMap = ImmutableMap.copyOf(tempColorMap);
+        COLOR_MAP = ImmutableMap.copyOf(tempColorMap);
 
         Map<String, ChatColor> tempStyleMap = new HashMap<>();
         tempStyleMap.put("BOLD", ChatColor.BOLD);
@@ -61,7 +61,7 @@ public class NameColorCommand implements CommandExecutor {
         tempStyleMap.put("UNDERLINE", ChatColor.UNDERLINE);
         tempStyleMap.put("MAGIC", ChatColor.MAGIC);
         tempStyleMap.put("STRIKE", ChatColor.STRIKETHROUGH);
-        styleMap = ImmutableMap.copyOf(tempStyleMap);
+        STYLE_MAP = ImmutableMap.copyOf(tempStyleMap);
     }
 
     private final boolean notify;
@@ -99,7 +99,7 @@ public class NameColorCommand implements CommandExecutor {
                 return true;
             }
 
-            if(styleMap.get(finalArg.toUpperCase(Locale.ROOT)) == null) {
+            if(isNotStyleOrColor(finalArg)) {
                 messenger.sendMessage(sender, Message.INVALID_PLAYER);
                 return true;
             }
@@ -144,20 +144,24 @@ public class NameColorCommand implements CommandExecutor {
             color = "&" + color;
         }
 
-        if(colorMap.containsKey(color)) {
-            color = String.valueOf(colorMap.get(color));
+        if(COLOR_MAP.containsKey(color)) {
+            color = String.valueOf(COLOR_MAP.get(color));
         }
 
         return color;
     }
 
     private boolean isNotColor(String color) {
-        return !SPIGOT_HEX.matcher(color).matches() && !STANDARD_HEX.matcher(color).matches() && !colorMap.containsKey(color);
+        return !SPIGOT_HEX.matcher(color).matches() && !STANDARD_HEX.matcher(color).matches() && !COLOR_MAP.containsKey(color.toUpperCase(Locale.ROOT));
+    }
+
+    private boolean isNotStyleOrColor(String s) {
+        return isNotColor(s) && STYLE_MAP.containsKey(s.toUpperCase(Locale.ROOT));
     }
 
     private void appendStyles(@NotNull StringBuilder builder, String @NotNull [] args) {
         for(String arg : args) {
-            ChatColor style = styleMap.get(arg.toUpperCase(Locale.ROOT));
+            ChatColor style = STYLE_MAP.get(arg.toUpperCase(Locale.ROOT));
             if(style != null) {
                 builder.append(style);
             }

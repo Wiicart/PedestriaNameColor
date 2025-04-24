@@ -148,7 +148,7 @@ public final class Gradient {
         return apply(start, middle, end, string, painter);
     }
 
-    public static List<Color> order(@NotNull Color color1, @NotNull Color color2, int length) {
+    public static List<Color> interpolate(@NotNull Color color1, @NotNull Color color2, int length) {
         List<Color> result = new ArrayList<>();
         for(int i=0; i<length; i++) {
             float percent = (float) i / (length - 1);

@@ -85,7 +85,7 @@ public class DatabaseUserUtil implements UserUtil {
         nameColor.async(() -> {
             String sql = "INSERT INTO namecolor_users(uuid, nick) VALUES (?, ?) ON DUPLICATE KEY UPDATE nick = VALUES(nick)";
             try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, String.valueOf(user.getUuid()));
+                statement.setString(1, String.valueOf(user.getUniqueID()));
                 statement.setString(2, user.getDisplayName());
 
                 statement.executeUpdate();
@@ -138,7 +138,7 @@ public class DatabaseUserUtil implements UserUtil {
 
     @Override
     public void addUser(User user) {
-        map.put(user.getUuid(), user);
+        map.put(user.getUniqueID(), user);
     }
 
     @Override

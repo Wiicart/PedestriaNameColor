@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NameUtilities {
+public final class NameUtilities {
 
     public static final Pattern HEX = Pattern.compile("#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
 

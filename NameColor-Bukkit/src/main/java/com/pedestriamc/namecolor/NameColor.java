@@ -2,6 +2,8 @@ package com.pedestriamc.namecolor;
 
 import com.pedestriamc.common.message.Messenger;
 import com.pedestriamc.namecolor.api.Mode;
+import com.pedestriamc.namecolor.api.NameColorAPIProvider;
+import com.pedestriamc.namecolor.impl.NameColorImpl;
 import com.pedestriamc.namecolor.manager.ClassRegistryManager;
 import com.pedestriamc.namecolor.manager.FileManager;
 import com.pedestriamc.namecolor.user.DatabaseUserUtil;
@@ -73,6 +75,8 @@ public final class NameColor extends JavaPlugin {
 
         String prefix = Objects.requireNonNullElse(getConfig().getString("prefix"), "&8[&dNameColor&8] &f");
         messenger = new Messenger<>(getConfig(), prefix, Message.class);
+
+        NameColorAPIProvider.setInstance(new NameColorImpl(this), this);
     }
 
     private void initializeMetrics() {
