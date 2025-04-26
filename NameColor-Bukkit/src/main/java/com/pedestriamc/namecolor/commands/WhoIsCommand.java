@@ -10,7 +10,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Map;
 
@@ -19,7 +21,7 @@ public class WhoIsCommand implements CommandExecutor {
     private final UserUtil userUtil;
     private final Messenger<Message> messenger;
 
-    public WhoIsCommand(NameColor nameColor) {
+    public WhoIsCommand(@NotNull NameColor nameColor) {
         userUtil = nameColor.getUserUtil();
         messenger = nameColor.getMessenger();
     }
@@ -56,14 +58,15 @@ public class WhoIsCommand implements CommandExecutor {
         return true;
     }
 
-    private boolean doesNotHavePermission(CommandSender sender) {
+    private boolean doesNotHavePermission(@NotNull CommandSender sender) {
         return !(sender.isOp() ||
                 sender.hasPermission("*") ||
                 sender.hasPermission("namecolor.*") ||
                 sender.hasPermission("namecolor.whois"));
     }
 
-    private Map<String, String> generatePlaceholders(@NotNull Player player) {
+    @Contract("_ -> new")
+    private @NotNull @Unmodifiable Map<String, String> generatePlaceholders(@NotNull Player player) {
         return Map.of(
                 "%display-name%", player.getDisplayName(),
                 "%username%", player.getName()

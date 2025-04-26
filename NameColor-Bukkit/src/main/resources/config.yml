@@ -47,7 +47,7 @@ notify-players: true
 namecolor-help:
   - '&8+----[&dNameColor&8]----+'
   - '&fUsage: &7/namecolor <color> <option1> <option2>&f.'
-  - '&fAny combinations of the following options can be used:'
+  - '&fAny combination of the following options can be used:'
   - '&fbold, underline, italics, magic, strike.'
   - '&fIf changing another players name, add their username to the end.'
   - '&fRGB colors supported, formatted #<RGB>.'
@@ -148,3 +148,12 @@ invalid-color-hex: '&fInvalid color &7(Proper format: #<HEX>).'
 
 # Invalid usage for gradient
 invalid-usage-gradient: '&fInvalid command usage. &7(Syntax: /gradient <color1> <color2> <player (optional)>)'
+
+# No permission to use specific style
+style-specific: '&fYou don''t have permission to use style &7%style%&f.'
+
+# No permission to use specific color
+color-specific: '&fYou don''t have permission to use &7%color%&f.'
+
+# Unknown style
+unknown-style: '&fUnknown style.'

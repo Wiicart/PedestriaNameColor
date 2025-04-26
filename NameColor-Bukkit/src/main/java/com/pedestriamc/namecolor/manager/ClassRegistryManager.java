@@ -2,7 +2,7 @@ package com.pedestriamc.namecolor.manager;
 
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.commands.GradientCommand;
-import com.pedestriamc.namecolor.commands.NameColorCommand;
+import com.pedestriamc.namecolor.commands.namecolor.NameColorCommand;
 import com.pedestriamc.namecolor.commands.NicknameCommand;
 import com.pedestriamc.namecolor.commands.WhoIsCommand;
 import com.pedestriamc.namecolor.listeners.JoinListener;

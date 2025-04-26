@@ -1,12 +1,10 @@
-package com.pedestriamc.namecolor.commands;
+package com.pedestriamc.namecolor.commands.namecolor;
 
-import com.google.common.collect.ImmutableMap;
 import com.pedestriamc.common.message.Messenger;
 import com.pedestriamc.namecolor.user.User;
 import com.pedestriamc.namecolor.Message;
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.user.UserUtil;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,7 +15,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -29,40 +26,6 @@ public class NameColorCommand implements CommandExecutor {
 
     // Traditional HEX format
     private static final Pattern STANDARD_HEX = Pattern.compile("^#[a-fA-F0-9]{6}$", Pattern.CASE_INSENSITIVE);
-
-    private static final Map<String, ChatColor> COLOR_MAP;
-    private static final Map<String, ChatColor> STYLE_MAP;
-
-    static {
-        Map<String, ChatColor> tempColorMap = new HashMap<>();
-        tempColorMap.put("BLACK", ChatColor.BLACK);
-        tempColorMap.put("DARKBLUE", ChatColor.DARK_BLUE);
-        tempColorMap.put("DARKGREEN", ChatColor.DARK_GREEN);
-        tempColorMap.put("DARKAQUA", ChatColor.DARK_AQUA);
-        tempColorMap.put("DARKRED", ChatColor.DARK_RED);
-        tempColorMap.put("DARKPURPLE", ChatColor.DARK_PURPLE);
-        tempColorMap.put("GOLD", ChatColor.GOLD);
-        tempColorMap.put("GRAY", ChatColor.GRAY);
-        tempColorMap.put("DARKGRAY", ChatColor.DARK_GRAY);
-        tempColorMap.put("BLUE", ChatColor.BLUE);
-        tempColorMap.put("GREEN", ChatColor.GREEN);
-        tempColorMap.put("AQUA", ChatColor.AQUA);
-        tempColorMap.put("RED", ChatColor.RED);
-        tempColorMap.put("LIGHTPURPLE", ChatColor.LIGHT_PURPLE);
-        tempColorMap.put("PINK", ChatColor.LIGHT_PURPLE);
-        tempColorMap.put("YELLOW", ChatColor.YELLOW);
-        tempColorMap.put("WHITE", ChatColor.WHITE);
-        COLOR_MAP = ImmutableMap.copyOf(tempColorMap);
-
-        Map<String, ChatColor> tempStyleMap = new HashMap<>();
-        tempStyleMap.put("BOLD", ChatColor.BOLD);
-        tempStyleMap.put("ITALIC", ChatColor.ITALIC);
-        tempStyleMap.put("ITALICS", ChatColor.ITALIC);
-        tempStyleMap.put("UNDERLINE", ChatColor.UNDERLINE);
-        tempStyleMap.put("MAGIC", ChatColor.MAGIC);
-        tempStyleMap.put("STRIKE", ChatColor.STRIKETHROUGH);
-        STYLE_MAP = ImmutableMap.copyOf(tempStyleMap);
-    }
 
     private final boolean notify;
     private final UserUtil userUtil;
@@ -91,6 +54,11 @@ public class NameColorCommand implements CommandExecutor {
             return true;
         }
 
+        if(args[0].equalsIgnoreCase("help")) {
+            messenger.sendMessage(sender, Message.NAMECOLOR_HELP);
+            return true;
+        }
+
         String finalArg = args[args.length - 1];
         Player target = Bukkit.getPlayer(finalArg);
         if(target == null) {
@@ -112,15 +80,15 @@ public class NameColorCommand implements CommandExecutor {
         StringBuilder builder = new StringBuilder();
 
         String color = args[0].toUpperCase(Locale.ROOT);
-        if(isNotColor(color)) {
-            messenger.sendMessage(sender, Message.INVALID_COLOR);
+        args[0] = "";
+        if(processColor(sender, builder, color)) {
             return true;
         }
-        builder.append(processColor(color));
 
-        if(hasStylePermission(sender)) {
-            appendStyles(builder, args);
+        if(appendStyles(sender, builder, args)) {
+            return true;
         }
+
         builder.append(target.getName());
 
         User user = userUtil.getUser(target.getUniqueId());
@@ -139,48 +107,93 @@ public class NameColorCommand implements CommandExecutor {
     }
 
     // Makes HEX codes without & have &, ignores other color codes bc NameUtilities will handle those.
-    private String processColor(@NotNull String color) {
+    private boolean processColor(@NotNull CommandSender sender, @NotNull StringBuilder builder, @NotNull String color) {
         if(STANDARD_HEX.matcher(color).matches()) {
             color = "&" + color;
         }
 
-        if(COLOR_MAP.containsKey(color)) {
-            color = String.valueOf(COLOR_MAP.get(color));
+        if(SPIGOT_HEX.matcher(color).matches()) {
+            if(noColorPermission(sender, Color.HEX)) {
+                messenger.sendMessage(sender, Message.NO_PERMS_COLOR_SPECIFIC, Map.of("%color%", "hex"));
+                return true;
+            }
+            builder.append(color);
+            return false;
         }
 
-        return color;
+        Color c = Color.getColor(color);
+        if(c != null) {
+            if(noColorPermission(sender, c)) {
+                messenger.sendMessage(
+                        sender,
+                        Message.NO_PERMS_COLOR_SPECIFIC,
+                        Map.of("%color%", c.getName().toLowerCase(Locale.ROOT))
+                );
+                return true;
+            }
+            builder.append(c);
+            return false;
+        }
+
+        messenger.sendMessage(sender, Message.INVALID_COLOR);
+        return true;
     }
 
-    private boolean isNotColor(String color) {
-        return !SPIGOT_HEX.matcher(color).matches() && !STANDARD_HEX.matcher(color).matches() && !COLOR_MAP.containsKey(color.toUpperCase(Locale.ROOT));
+    private boolean isNotColor(@NotNull String color) {
+        return !SPIGOT_HEX.matcher(color).matches() && !STANDARD_HEX.matcher(color).matches() && Color.getColor(color) == null;
     }
 
     private boolean isNotStyleOrColor(String s) {
-        return isNotColor(s) && STYLE_MAP.containsKey(s.toUpperCase(Locale.ROOT));
+        return isNotColor(s) && Style.getStyle(s) == null;
     }
 
-    private void appendStyles(@NotNull StringBuilder builder, String @NotNull [] args) {
+    // returns true if the main method should return
+    private boolean appendStyles(@NotNull CommandSender sender, @NotNull StringBuilder builder, String @NotNull [] args) {
         for(String arg : args) {
-            ChatColor style = STYLE_MAP.get(arg.toUpperCase(Locale.ROOT));
+            Style style = Style.getStyle(arg.toUpperCase(Locale.ROOT));
             if(style != null) {
+                if(noStylePermission(sender, style)) {
+                    messenger.sendMessage(sender,
+                            Message.NO_PERMS_STYLE_SPECIFIC,
+                            Map.of("%style%", style.name().toLowerCase(Locale.ROOT))
+                    );
+                    return true;
+                }
                 builder.append(style);
+            } else {
+                if(!arg.isEmpty()) {
+                    messenger.sendMessage(sender, Message.UNKNOWN_STYLE);
+                    return true;
+                }
             }
         }
+        return false;
     }
 
-    private boolean doesNotHavePermission(CommandSender sender) {
+    private boolean noStylePermission(@NotNull CommandSender sender, @NotNull Style style) {
+        return !sender.isOp() &&
+                !sender.hasPermission("*") &&
+                !sender.hasPermission("namecolor.*") &&
+                !sender.hasPermission("namecolor.set.*") &&
+                !sender.hasPermission("namecolor.set.style.*") &&
+                !sender.hasPermission(style.getPermission());
+    }
+
+    private boolean noColorPermission(@NotNull CommandSender sender, @NotNull Color color) {
+        return !sender.isOp() &&
+                !sender.hasPermission("*") &&
+                !sender.hasPermission("namecolor.*") &&
+                !sender.hasPermission("namecolor.set.*") &&
+                !sender.hasPermission("namecolor.set.style.*") &&
+                !sender.hasPermission(color.getPermission());
+    }
+
+    private boolean doesNotHavePermission(@NotNull CommandSender sender) {
         return !(sender.isOp() ||
                 sender.hasPermission("*") ||
                 sender.hasPermission("namecolor.*") ||
                 sender.hasPermission("namecolor.set") ||
                 sender.hasPermission("namecolor.set.*"));
-    }
-
-    private boolean hasStylePermission(CommandSender sender) {
-        return sender.isOp() ||
-                sender.hasPermission("namecolor.*") ||
-                sender.hasPermission("namecolor.set.*") ||
-                sender.hasPermission("namecolor.set.style");
     }
 
     @Contract("_ -> new")

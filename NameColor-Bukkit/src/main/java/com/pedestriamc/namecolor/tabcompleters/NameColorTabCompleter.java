@@ -21,18 +21,25 @@ public class NameColorTabCompleter extends AbstractTabCompleter {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        if(!sender.isOp() && !sender.hasPermission("namecolor.*") && !sender.hasPermission("namecolor.set")) {
+            return EMPTY;
+        }
+
         switch (args.length) {
             case 0, 1 -> {
                 List<String> list = new ArrayList<>(COLORS);
                 list.add("help");
                 return filter(list, args[0]);
             }
-            default -> {
+            case 2, 3, 4, 5, 6, 7 -> {
                 if(sender.hasPermission("namecolor.set.style")) {
-                    return filter(STYLES, args[args.length - 1]);
+                    List<String> list = new ArrayList<>(STYLES);
+                    list.addAll(getPlayerNames());
+                    return filter(list, args[args.length - 1]);
                 }
-                return EMPTY;
             }
+            default -> { return EMPTY; }
         }
+        return EMPTY;
     }
 }

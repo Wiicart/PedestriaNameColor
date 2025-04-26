@@ -39,9 +39,88 @@ permissions:
       namecolor.nick: true
       namecolor.nick.others: true
       namecolor.whois: true
+      namecolor.set.style: true
+      namecolor.set.color: true
   namecolor.set:
     description: "Allows setting own NameColor"
     default: true
+    children:
+      namecolor.set.style: true
+      namecolor.set.color: true
+  namecolor.set.style:
+    description: "Allows users to use text styles on their name with /namecolor"
+    default: true
+    children:
+      namecolor.set.style.bold: true
+      namecolor.set.style.italic: true
+      namecolor.set.style.underline: true
+      namecolor.set.style.magic: true
+      namecolor.set.style.strike: true
+  namecolor.set.style.bold:
+    description: "Allows using the bold style with /namecolor"
+  namecolor.set.style.italic:
+    description: "Allows using the italic style with /namecolor"
+  namecolor.set.style.underline:
+    description: "Allows using the underline style with /namecolor"
+  namecolor.set.style.magic:
+    description: "Allows using the magic style with /namecolor"
+  namecolor.set.style.strike:
+    description: "Allows using the strikethrough style with /namecolor"
+  namecolor.set.color:
+    default: true
+    description: "Allows using all colors with /namecolor, unless a specific permission is denied."
+    children:
+      namecolor.set.color.hex: true
+      namecolor.set.color.black: true
+      namecolor.set.color.darkblue: true
+      namecolor.set.color.darkgreen: true
+      namecolor.set.color.darkaqua: true
+      namecolor.set.color.darkred: true
+      namecolor.set.color.darkpurple: true
+      namecolor.set.color.gold: true
+      namecolor.set.color.gray: true
+      namecolor.set.color.darkgray: true
+      namecolor.set.color.blue: true
+      namecolor.set.color.green: true
+      namecolor.set.color.aqua: true
+      namecolor.set.color.red: true
+      namecolor.set.color.pink: true
+      namecolor.set.color.yellow: true
+      namecolor.set.color.white: true
+  namecolor.set.color.hex:
+    description: "Allows using hex colors with /namecolor"
+  namecolor.set.color.black:
+    description: "Allows using the color black with /namecolor"
+  namecolor.set.color.darkblue:
+    description: "Allows using the color dark blue with /namecolor"
+  namecolor.set.color.darkgreen:
+    description: "Allows using the color dark green with /namecolor"
+  namecolor.set.color.darkaqua:
+    description: "Allows using the color dark aqua with /namecolor"
+  namecolor.set.color.darkred:
+    description: "Allows using the color dar red with /namecolor"
+  namecolor.set.color.darkpurple:
+    description: "Allows using the color dark purple with /namecolor"
+  namecolor.set.color.gold:
+    description: "Allows using the color gold with /namecolor"
+  namecolor.set.color.gray:
+    description: "Allows using the color gray with /namecolor"
+  namecolor.set.color.darkgray:
+    description: "Allows using the color dark gray with /namecolor"
+  namecolor.set.color.blue:
+    description: "Allows using the color blue with /namecolor"
+  namecolor.set.color.green:
+    description: "Allows using the color green with /namecolor"
+  namecolor.set.color.aqua:
+    description: "Allows using the color aqua with /namecolor"
+  namecolor.set.color.red:
+    description: "Allows using the color red with /namecolor"
+  namecolor.set.color.pink:
+    description: "Allows using the color pink with /namecolor"
+  namecolor.set.color.yellow:
+    description: "Allows using the color yellow with /namecolor"
+  namecolor.set.color.white:
+    description: "Allows using the color white with /namecolor"
   namecolor.set.others:
     description: "Allows setting other's NameColor"
     default: op
@@ -57,9 +136,6 @@ permissions:
   namecolor.filter.bypass:
     description: "Allows bypassing the nickname filters"
     default: op
-  namecolor.set.style:
-    description: "Allows users to use text styles on their name with /namecolor"
-    default: true
   namecolor.nick.color:
     description: "Allows players to use colors in their nicknames"
     default: true
