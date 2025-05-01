@@ -62,7 +62,6 @@ public class GradientCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-
         if(doesNotHavePermission(sender)) {
             messenger.sendMessage(sender, NO_PERMS);
             return true;
@@ -85,7 +84,8 @@ public class GradientCommand implements CommandExecutor {
             return true;
         }
 
-        String nick = Gradient.apply(color1, color2, target.getDisplayName(), Painter.BUNGEE_STRIP_IGNORE_STYLES);
+        String displayName = user.getDisplayName();
+        String nick = Gradient.apply(color1, color2, displayName, Painter.BUNGEE_STRIP_IGNORE_STYLES);
 
         user.setDisplayName(nick);
         userUtil.saveUser(user);
@@ -121,7 +121,6 @@ public class GradientCommand implements CommandExecutor {
             return null;
         }
     }
-
 
     private Player processTarget(CommandSender sender, String[] args) {
         Player target;

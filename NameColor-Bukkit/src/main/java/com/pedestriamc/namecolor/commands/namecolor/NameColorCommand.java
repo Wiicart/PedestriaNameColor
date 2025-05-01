@@ -44,6 +44,11 @@ public class NameColorCommand implements CommandExecutor {
             return true;
         }
 
+        if(args.length == 0) {
+            messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
+            return true;
+        }
+
         if (args.length == 1 && !(sender instanceof Player)) {
             messenger.sendMessage(sender, Message.CONSOLE_MUST_DEFINE_PLAYER);
             return true;

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.Color;
 import java.util.regex.Pattern;
 
-public class BungeeStripPainter extends BungeePainter {
+final class BungeeStripPainter extends BungeePainter {
 
     public static final Pattern SPIGOT_HEX = Pattern.compile("&#[a-fA-F0-9]{6}", Pattern.CASE_INSENSITIVE);
 

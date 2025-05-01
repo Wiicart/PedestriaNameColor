@@ -130,15 +130,15 @@ permissions:
   namecolor.nick.others:
     description: "Allows players to change other player's nickname"
     default: op
+  namecolor.nick.color:
+    description: "Allows players to use colors in their nicknames"
+    default: true
   namecolor.whois:
     description: "Allows use of the /whois command"
     default: true
   namecolor.filter.bypass:
     description: "Allows bypassing the nickname filters"
     default: op
-  namecolor.nick.color:
-    description: "Allows players to use colors in their nicknames"
-    default: true
   namecolor.gradient:
     description: "Allows players to use the /gradient command"
     default: true

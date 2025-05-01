@@ -39,6 +39,9 @@ allow-username-nicknames: true
 # Notify players when their display name has changed?
 notify-players: true
 
+# Nickname prefix, inserted before nicknames:
+nick-prefix: ''
+
 # +----- Messages -----+
 # Note: prefix is used before all messages.
 # Compatible with '&' color codes.

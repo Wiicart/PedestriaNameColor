@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-class BungeeStripIgnoreStylesPainter implements Painter {
+final class BungeeStripIgnoreStylesPainter implements Painter {
 
     static final Pattern STRIP_ONLY_COLORS = Pattern.compile("(?i)" + ChatColor.COLOR_CHAR + "(x(?:" + ChatColor.COLOR_CHAR + "[0-9A-F]){6}|[0-9A-F])");
 
@@ -90,7 +90,6 @@ class BungeeStripIgnoreStylesPainter implements Painter {
         return list;
     }
 
-
     // Extracts style codes from a String, and returns the extracted codes in String form.
     private String extractCodes(@NotNull String input) {
         char[] chars = input.toCharArray();
@@ -109,5 +108,4 @@ class BungeeStripIgnoreStylesPainter implements Painter {
 
         return codes.toString();
     }
-
 }

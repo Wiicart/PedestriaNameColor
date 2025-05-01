@@ -25,21 +25,21 @@ public class NameColorTabCompleter extends AbstractTabCompleter {
             return EMPTY;
         }
 
-        switch (args.length) {
+        return switch (args.length) {
             case 0, 1 -> {
                 List<String> list = new ArrayList<>(COLORS);
                 list.add("help");
-                return filter(list, args[0]);
+                yield filter(list, args[0]);
             }
             case 2, 3, 4, 5, 6, 7 -> {
                 if(sender.hasPermission("namecolor.set.style")) {
-                    List<String> list = new ArrayList<>(STYLES);
-                    list.addAll(getPlayerNames());
-                    return filter(list, args[args.length - 1]);
+                    List<String> list = collect(STYLES, getPlayerNames());
+                    yield filter(list, args[args.length - 1]);
                 }
+                yield EMPTY;
             }
-            default -> { return EMPTY; }
-        }
-        return EMPTY;
+
+            default -> EMPTY;
+        };
     }
 }

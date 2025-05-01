@@ -13,6 +13,8 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -155,7 +157,7 @@ public final class NameColor extends JavaPlugin {
         return mode;
     }
 
-    public String getModeString() {
+    public @NotNull String getModeString() {
         return String.valueOf(mode).toLowerCase(Locale.ROOT);
     }
 
@@ -165,7 +167,8 @@ public final class NameColor extends JavaPlugin {
 
     public UserUtil getUserUtil() { return userUtil; }
 
-    public String isUsingSql() { return String.valueOf(usingSql); }
+    @Contract(pure = true)
+    public @NotNull String isUsingSql() { return String.valueOf(usingSql); }
 
     public Messenger<Message> getMessenger() { return messenger; }
 
