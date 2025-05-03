@@ -5,7 +5,7 @@
 
     <groupId>com.pedestriamc.namecolor</groupId>
     <artifactId>NameColor</artifactId>
-    <version>1.10</version>
+    <version>1.10.1</version>
     <modules>
         <module>NameColorAPI</module>
         <module>NameColor-Bukkit</module>

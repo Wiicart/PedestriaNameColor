@@ -37,20 +37,15 @@ public class FileManager {
         updateIfPresent("config.yml");
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     private File loadFile(String fileName) {
         File file = new File(nameColor.getDataFolder(), fileName);
         if (!file.exists()) {
-            if(!file.getParentFile().mkdirs()) {
-                warn("An error occurred while loading file " + fileName);
-            }
             try {
-                file.createNewFile();
-            } catch (IOException e) {
-                warn("An error occurred while loading file " + fileName);
-                warn("Error: " + e.getMessage());
+                nameColor.saveResource(fileName, false);
+            } catch(Exception e) {
+                warn("An error occurred while loading file " + fileName + ".");
+                warn("Error message: " + e.getMessage());
             }
-            nameColor.saveResource(fileName, false);
         }
         return file;
     }

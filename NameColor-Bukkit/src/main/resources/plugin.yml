@@ -6,7 +6,7 @@ prefix: 'NameColor'
 author: wiicart
 description: A plugin to change user's name colors
 website: 'https://pedestriamc.com'
-softdepend: [Essentials, ProtocolLib]
+softdepend: [Essentials, ProtocolLib, PlaceholderAPI]
 commands:
   namecolor:
     description: "Changes player's name color"

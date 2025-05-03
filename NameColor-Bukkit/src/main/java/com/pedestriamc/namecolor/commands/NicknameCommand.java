@@ -36,9 +36,6 @@ public class NicknameCommand implements CommandExecutor {
     // The max integer nick length, excluding colors.
     private final int maxLength;
 
-    // Prefix inserted before nicknames
-    private final String nickPrefix;
-
     public NicknameCommand(@NotNull NameColor nameColor) {
         messenger = nameColor.getMessenger();
         nameUtilities = nameColor.getNameUtilities();
@@ -51,8 +48,6 @@ public class NicknameCommand implements CommandExecutor {
         maxLength = nickLength <= 0 ? 16 : nickLength;
 
         allowUserNick = config.getBoolean("allow-username-nicknames");
-
-        nickPrefix = config.getString("nick-prefix", "");
     }
 
     @Override
@@ -181,7 +176,6 @@ public class NicknameCommand implements CommandExecutor {
      */
     private void updateTarget(@NotNull CommandSender sender, @NotNull Player target, @NotNull String nick) {
         User user = userUtil.getUser(target.getUniqueId());
-        nick = insertPrefix(nick);
         Bukkit.getLogger().info(nick);
         user.setDisplayName(nick);
         userUtil.saveUser(user);
@@ -203,7 +197,6 @@ public class NicknameCommand implements CommandExecutor {
      */
     private void updateTargetStripped(@NotNull CommandSender sender, @NotNull Player target, @NotNull String nick) {
         nick = stripColor(nick);
-        nick = insertPrefix(nick);
         Bukkit.getLogger().info(nick);
         boolean modifyingOther = !sender.equals(target);
 
@@ -246,11 +239,6 @@ public class NicknameCommand implements CommandExecutor {
                 sender.hasPermission("namecolor.*") ||
                 sender.hasPermission("namecolor.nick.*")
                 );
-    }
-
-    private @NotNull String insertPrefix(String message) {
-        Bukkit.getLogger().info(nickPrefix);
-        return nickPrefix + message;
     }
 
     @Contract("_ -> new")

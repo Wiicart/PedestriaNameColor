@@ -6,6 +6,7 @@ import com.pedestriamc.namecolor.api.NameColorAPIProvider;
 import com.pedestriamc.namecolor.impl.NameColorImpl;
 import com.pedestriamc.namecolor.manager.ClassRegistryManager;
 import com.pedestriamc.namecolor.manager.FileManager;
+import com.pedestriamc.namecolor.placeholder.NameColorPlaceholderExpansion;
 import com.pedestriamc.namecolor.user.DatabaseUserUtil;
 import com.pedestriamc.namecolor.user.UserUtil;
 import com.pedestriamc.namecolor.user.YamlUserUtil;
@@ -27,8 +28,8 @@ import java.util.Objects;
 
 public final class NameColor extends JavaPlugin {
 
-    public static final String PLUGIN_VERSION = "1.10";
-    public static final short PLUGIN_NUMBER = 10;
+    public static final String PLUGIN_VERSION = "1.10.1";
+    public static final short PLUGIN_NUMBER = 11;
     public static final String DISTRIBUTOR = "modrinth";
 
     private FileManager fileManager;
@@ -52,6 +53,7 @@ public final class NameColor extends JavaPlugin {
     public void onEnable() {
         ClassRegistryManager.registerClasses(this);
         checkForUpdate();
+        registerPlaceholders();
         initializeMetrics();
         checkIfReload();
         info("NameColor version " + PLUGIN_VERSION + " enabled.");
@@ -109,6 +111,7 @@ public final class NameColor extends JavaPlugin {
             }
         }
         userUtil = new YamlUserUtil(this);
+        info("Storage Method: yaml");
     }
 
     /**
@@ -128,6 +131,12 @@ public final class NameColor extends JavaPlugin {
         } else {
             info("Essentials plugin not found, defaulting to server mode.");
             mode = Mode.SERVER;
+        }
+    }
+
+    private void registerPlaceholders() {
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new NameColorPlaceholderExpansion(this).register();
         }
     }
 
@@ -165,7 +174,7 @@ public final class NameColor extends JavaPlugin {
 
     public NameUtilities getNameUtilities() { return nameUtilities; }
 
-    public UserUtil getUserUtil() { return userUtil; }
+    public @NotNull UserUtil getUserUtil() { return userUtil; }
 
     @Contract(pure = true)
     public @NotNull String isUsingSql() { return String.valueOf(usingSql); }

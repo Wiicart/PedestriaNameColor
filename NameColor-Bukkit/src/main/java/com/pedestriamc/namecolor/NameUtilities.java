@@ -23,12 +23,14 @@ public final class NameUtilities {
     private boolean usingEssentials;
     private Essentials essentials;
     private final List<String> blacklist;
+    private final String nickPrefix;
 
     public NameUtilities(NameColor nameColor) {
         this.nameColor = nameColor;
         blacklist = new ArrayList<>();
         loadBlacklist();
         determineMode();
+        nickPrefix = nameColor.getConfig().getString("nick-prefix", "");
     }
 
     /**
@@ -100,6 +102,11 @@ public final class NameUtilities {
             String hexColor = matcher.group().substring(1).toUpperCase();
             ChatColor color = ChatColor.of(new Color(Integer.parseInt(hexColor.substring(1), 16)));
             displayName = displayName.replace(matcher.group(), color.toString());
+        }
+
+        // Add nick prefix if applicable
+        if(!stripColor(displayName).equalsIgnoreCase(player.getName())) {
+            displayName = nickPrefix + displayName;
         }
 
         displayName += "&r";

@@ -14,12 +14,17 @@ import com.pedestriamc.namecolor.tabcompleters.WhoIsTabCompleter;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class ClassRegistryManager {
 
     private final NameColor nameColor;
 
-    public static void registerClasses(NameColor nameColor) {
+    public static void registerClasses(@NotNull NameColor nameColor) {
+        Objects.requireNonNull(nameColor);
+        Objects.requireNonNull(nameColor.getUserUtil());
         new ClassRegistryManager(nameColor).registerClasses();
     }
 

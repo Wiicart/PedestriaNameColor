@@ -20,8 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class YamlUserUtil implements UserUtil {
 
-    static final String NICK_KEY = "players.{UUID}.nick";
-    static final String LEGACY_KEY = "players.{UUID}.color";
+    private static final String NICK_KEY = "players.{UUID}.nick";
+    private static final String LEGACY_KEY = "players.{UUID}.color";
 
     private final NameColor nameColor;
     private final NameUtilities nameUtilities;
