@@ -61,6 +61,7 @@ nickname-help:
   - '&fUsage: &7/nick <nick> <username>&f.'
   - '&f<username> may be blank, RGB colors supported.'
   - '&fNote: Enter RGB codes as &#<RGB>.'
+  - '&7&owiicart.net/namecolor/commandbuilder'
 
 # Whois help message:
 whois-help: '&fUsage: &7/whois <display name>'

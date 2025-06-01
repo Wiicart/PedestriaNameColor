@@ -28,8 +28,8 @@ import java.util.Objects;
 
 public final class NameColor extends JavaPlugin {
 
-    public static final String PLUGIN_VERSION = "1.10.1";
-    public static final short PLUGIN_NUMBER = 11;
+    public static final String PLUGIN_VERSION = "1.10.2";
+    public static final short PLUGIN_NUMBER = 12;
     public static final String DISTRIBUTOR = "modrinth";
 
     private FileManager fileManager;

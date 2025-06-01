@@ -13,7 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Map;
@@ -27,6 +27,11 @@ public class NameColorCommand implements CommandExecutor {
     // Traditional HEX format
     private static final Pattern STANDARD_HEX = Pattern.compile("^#[a-fA-F0-9]{6}$", Pattern.CASE_INSENSITIVE);
 
+    private static final int MAX_ARG_LENGTH = Style.values().length /* Style quantity */
+            + 1 /* One color */
+            + 1 /* Only one player may be defined */;
+
+
     private final boolean notify;
     private final UserUtil userUtil;
     private final Messenger<Message> messenger;
@@ -39,23 +44,17 @@ public class NameColorCommand implements CommandExecutor {
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if(doesNotHavePermission(sender)) {
-            messenger.sendMessage(sender, Message.NO_PERMS);
-            return true;
+        Player target;
+        boolean senderIsNotPlayer = true;
+
+        if(sender instanceof Player p) {
+            senderIsNotPlayer = false;
+            target = p;
+        } else {
+            target = null;
         }
 
-        if(args.length == 0) {
-            messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
-            return true;
-        }
-
-        if (args.length == 1 && !(sender instanceof Player)) {
-            messenger.sendMessage(sender, Message.CONSOLE_MUST_DEFINE_PLAYER);
-            return true;
-        }
-
-        if(args.length > 7) {
-            messenger.sendMessage(sender, Message.INVALID_ARGS_COLOR);
+        if(handleConditions(args, sender, senderIsNotPlayer)) {
             return true;
         }
 
@@ -64,41 +63,38 @@ public class NameColorCommand implements CommandExecutor {
             return true;
         }
 
-        String finalArg = args[args.length - 1];
-        Player target = Bukkit.getPlayer(finalArg);
+        if(canUseOnOthers(sender)) {
+            String finalArg = args[args.length - 1];
+            Player potentialTarget = Bukkit.getPlayer(finalArg);
+
+            if(potentialTarget == null) {
+                if(senderIsNotPlayer) {
+                    messenger.sendMessage(sender, Message.INVALID_PLAYER);
+                    return true;
+                }
+
+                if(isNotStyleOrColor(finalArg)) {
+                    messenger.sendMessage(sender, Message.INVALID_PLAYER);
+                    return true;
+                }
+            } else {
+                args[args.length - 1] = "";
+                target = potentialTarget;
+            }
+        }
+
+        // This shouldn't evaluate to true, here to stop IDE warning
         if(target == null) {
-            if(!(sender instanceof Player)) {
-                messenger.sendMessage(sender, Message.INVALID_PLAYER);
-                return true;
-            }
-
-            if(isNotStyleOrColor(finalArg)) {
-                messenger.sendMessage(sender, Message.INVALID_PLAYER);
-                return true;
-            }
-
-            target = (Player) sender;
-        } else {
-            args[args.length - 1] = "";
-        }
-
-        StringBuilder builder = new StringBuilder();
-
-        String color = args[0].toUpperCase(Locale.ROOT);
-        args[0] = "";
-        if(processColor(sender, builder, color)) {
+            Bukkit.getLogger().warning("[NameColor] An error occurred while executing the /namecolor command.");
             return true;
         }
 
-        if(appendStyles(sender, builder, args)) {
+        String displayName = generateDisplayName(args, sender, target.getName());
+        if(displayName == null) {
             return true;
         }
 
-        builder.append(target.getName());
-
-        User user = userUtil.getUser(target.getUniqueId());
-        user.setDisplayName(builder.toString());
-        userUtil.saveUser(user);
+        updateUser(userUtil.getUser(target.getUniqueId()), displayName);
 
         if(!sender.equals(target)) {
             messenger.sendMessage(sender, Message.NAME_SET_OTHER, getPlaceholders(target));
@@ -111,8 +107,57 @@ public class NameColorCommand implements CommandExecutor {
         return true;
     }
 
+    private String generateDisplayName(String[] args, CommandSender sender, String name) {
+        StringBuilder builder = new StringBuilder();
+
+        String color = args[0].toUpperCase(Locale.ROOT);
+        args[0] = "";
+
+        builder = processColor(sender, builder, color);
+        if(builder == null) {
+            return null;
+        }
+
+        builder = appendStyles(sender, builder, args);
+        if(builder == null) {
+            return null;
+        }
+
+        return builder.append(name).toString();
+    }
+
+    private boolean handleConditions(String[] args, CommandSender sender, boolean isNotPlayer) {
+        if(doesNotHavePermission(sender)) {
+            messenger.sendMessage(sender, Message.NO_PERMS);
+            return true;
+        }
+
+        if(args.length == 0) {
+            messenger.sendMessage(sender, Message.INSUFFICIENT_ARGS);
+            return true;
+        }
+
+        if (args.length == 1 && isNotPlayer) {
+            messenger.sendMessage(sender, Message.CONSOLE_MUST_DEFINE_PLAYER);
+            return true;
+        }
+
+        if(args.length > MAX_ARG_LENGTH) {
+            messenger.sendMessage(sender, Message.INVALID_ARGS_COLOR);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void updateUser(User user, String displayName) {
+        user.setDisplayName(displayName);
+        userUtil.saveUser(user);
+    }
+
+
     // Makes HEX codes without & have &, ignores other color codes bc NameUtilities will handle those.
-    private boolean processColor(@NotNull CommandSender sender, @NotNull StringBuilder builder, @NotNull String color) {
+    private StringBuilder processColor(@NotNull CommandSender sender, @NotNull StringBuilder builder, @NotNull String color) {
         if(STANDARD_HEX.matcher(color).matches()) {
             color = "&" + color;
         }
@@ -120,10 +165,10 @@ public class NameColorCommand implements CommandExecutor {
         if(SPIGOT_HEX.matcher(color).matches()) {
             if(noColorPermission(sender, Color.HEX)) {
                 messenger.sendMessage(sender, Message.NO_PERMS_COLOR_SPECIFIC, Map.of("%color%", "hex"));
-                return true;
+                return null;
             }
-            builder.append(color);
-            return false;
+
+            return builder.append(color);
         }
 
         Color c = Color.getColor(color);
@@ -134,14 +179,14 @@ public class NameColorCommand implements CommandExecutor {
                         Message.NO_PERMS_COLOR_SPECIFIC,
                         Map.of("%color%", c.getName().toLowerCase(Locale.ROOT))
                 );
-                return true;
+                return null;
             }
-            builder.append(c);
-            return false;
+
+            return builder.append(c);
         }
 
         messenger.sendMessage(sender, Message.INVALID_COLOR);
-        return true;
+        return null;
     }
 
     private boolean isNotColor(@NotNull String color) {
@@ -152,8 +197,7 @@ public class NameColorCommand implements CommandExecutor {
         return isNotColor(s) && Style.getStyle(s) == null;
     }
 
-    // returns true if the main method should return
-    private boolean appendStyles(@NotNull CommandSender sender, @NotNull StringBuilder builder, String @NotNull [] args) {
+    private @Nullable StringBuilder appendStyles(@NotNull CommandSender sender, @NotNull StringBuilder builder, String @NotNull [] args) {
         for(String arg : args) {
             Style style = Style.getStyle(arg.toUpperCase(Locale.ROOT));
             if(style != null) {
@@ -162,17 +206,17 @@ public class NameColorCommand implements CommandExecutor {
                             Message.NO_PERMS_STYLE_SPECIFIC,
                             Map.of("%style%", style.name().toLowerCase(Locale.ROOT))
                     );
-                    return true;
+                    return null;
                 }
                 builder.append(style);
             } else {
                 if(!arg.isEmpty()) {
                     messenger.sendMessage(sender, Message.UNKNOWN_STYLE);
-                    return true;
+                    return null;
                 }
             }
         }
-        return false;
+        return builder;
     }
 
     private boolean noStylePermission(@NotNull CommandSender sender, @NotNull Style style) {
@@ -202,10 +246,15 @@ public class NameColorCommand implements CommandExecutor {
     }
 
     @Contract("_ -> new")
-    private @NotNull @Unmodifiable Map<String, String> getPlaceholders(@NotNull Player player) {
+    private @NotNull Map<String, String> getPlaceholders(@NotNull Player player) {
         return Map.of(
                 "%display-name%", player.getDisplayName(),
                 "%username%", player.getName()
         );
+    }
+
+    private boolean canUseOnOthers(@NotNull CommandSender sender) {
+        return sender.isOp() || sender.hasPermission("*") || sender.hasPermission("namecolor.*") ||
+                sender.hasPermission("namecolor.set.*") || sender.hasPermission("namecolor.set.others");
     }
 }

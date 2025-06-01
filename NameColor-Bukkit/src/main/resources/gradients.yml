@@ -1,1 +1,5 @@
-# This file contains gradients that
+# This file contains pre-set gradients that can be applied using the command.
+gradients:
+  green-purple:
+    color1: '#8FF184'
+    color2: '#F025FF'
