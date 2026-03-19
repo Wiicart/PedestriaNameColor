@@ -75,24 +75,52 @@ public final class NameUtilities {
      * @param player The player to set the display name of.
      */
     public void setDisplayName(String displayName, Player player) {
+        String processed = processDisplayName(displayName, player);
+        player.setDisplayName(processed);
+
+        if (usingEssentials) {
+            essentials.getUser(player.getUniqueId()).setNickname(processed);
+        }
+    }
+
+    /**
+     * Updates player display names with Bukkit, and Essentials if enabled.
+     * @param processed Processed display name, via {@link NameUtilities#processDisplayName(String, Player)}
+     * @param player The Player to update.
+     */
+    public void updateDisplayName(@NotNull String processed, @NotNull Player player) {
+        player.setDisplayName(processed);
+        if (usingEssentials) {
+            essentials.getUser(player.getUniqueId()).setNickname(processed);
+        }
+    }
+
+    /**
+     * Processes a raw display name.
+     * @param raw The raw display name.
+     * @param player The Player whose display name is being processed.
+     * @return A processed String.
+     */
+    @NotNull
+    public String processDisplayName(@NotNull String raw, @NotNull Player player) {
+        String displayName = raw;
+
         Matcher matcher = SPIGOT_HEX.matcher(displayName);
-        while(matcher.find()) {
+        while (matcher.find()) {
             String hexColor = matcher.group().substring(1).toUpperCase();
             ChatColor color = ChatColor.of(new Color(Integer.parseInt(hexColor.substring(1), 16)));
             displayName = displayName.replace(matcher.group(), color.toString());
         }
 
         // Add nick prefix if applicable
-        if(!stripColor(displayName).equalsIgnoreCase(player.getName())) {
+        if (!stripColor(displayName).equalsIgnoreCase(player.getName())) {
             displayName = nickPrefix + displayName;
         }
 
         displayName += "&r";
         displayName = ChatColor.translateAlternateColorCodes('&', displayName);
-        player.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
-        if(usingEssentials) {
-            essentials.getUser(player.getUniqueId()).setNickname(displayName);
-        }
+
+        return displayName;
     }
 
     public static String stripColor(String str) {

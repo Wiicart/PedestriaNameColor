@@ -136,6 +136,6 @@ permissions:
   namecolor.gradient:
     description: "Allows players to use the /gradient command"
     default: true
-  namecolor.gradient.other:
+  namecolor.gradient.others:
     description: "Allows players to use the /gradient command on other players"
     default: op

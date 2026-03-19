@@ -39,8 +39,9 @@ public final class User implements NameColorUser {
     }
 
     public void setDisplayName(@NotNull String displayName) {
-        this.displayName = displayName;
-        nameUtilities.setDisplayName(displayName, player);
+        String display = nameUtilities.processDisplayName(displayName, player);
+        nameUtilities.updateDisplayName(display, player);
+        this.displayName = display;
     }
 
     public Player getPlayer() {

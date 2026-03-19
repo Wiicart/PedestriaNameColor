@@ -62,24 +62,25 @@ public class GradientCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if(doesNotHavePermission(sender)) {
+        if (doesNotHavePermission(sender)) {
             messenger.sendMessage(sender, NO_PERMS);
             return true;
         }
 
-        if(doesNotHaveAcceptableLength(sender, args.length)) {
+        if (doesNotHaveAcceptableLength(sender, args.length)) {
             return true;
         }
 
         Player target = processTarget(sender, args);
-        if(target == null) {
+        if (target == null) {
             return true;
         }
+
         User user = userUtil.getUser(target.getUniqueId());
 
         Color color1 = processColor(args[0]);
         Color color2 = processColor(args[1]);
-        if(color1 == null || color2 == null) {
+        if (color1 == null || color2 == null) {
             messenger.sendMessage(sender, GRADIENT_INVALID_COLOR);
             return true;
         }
@@ -182,6 +183,7 @@ public class GradientCommand implements CommandExecutor {
                 sender.hasPermission("*") ||
                 sender.hasPermission("namecolor.*") ||
                 sender.hasPermission("namecolor.gradient.*") ||
+                sender.hasPermission("namecolor.gradient.other") ||
                 sender.hasPermission("namecolor.gradient.other"));
     }
 
