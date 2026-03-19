@@ -31,7 +31,8 @@ public enum Message implements CommonMessage {
     GRADIENT_INVALID_USAGE("invalid-usage-gradient"),
     NO_PERMS_STYLE_SPECIFIC("style-specific"),
     NO_PERMS_COLOR_SPECIFIC("color-specific"),
-    UNKNOWN_STYLE("unknown-style"),;
+    UNKNOWN_STYLE("unknown-style"),
+    NICK_DISABLED("nick-disabled"),;
 
     private final String key;
 

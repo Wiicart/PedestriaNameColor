@@ -1,8 +1,10 @@
 package com.pedestriamc.namecolor.manager;
 
+import com.pedestriamc.namecolor.Message;
 import com.pedestriamc.namecolor.NameColor;
 import com.pedestriamc.namecolor.commands.ColorsCommand;
 import com.pedestriamc.namecolor.commands.GradientCommand;
+import com.pedestriamc.namecolor.commands.MessengerCommand;
 import com.pedestriamc.namecolor.commands.namecolor.NameColorCommand;
 import com.pedestriamc.namecolor.commands.NicknameCommand;
 import com.pedestriamc.namecolor.commands.WhoIsCommand;
@@ -43,12 +45,18 @@ public class ClassRegistryManager {
         registerCommand("whois", new WhoIsCommand(nameColor), new WhoIsTabCompleter());
         registerCommand("gradient", new GradientCommand(nameColor), new GradientTabCompleter());
 
-        NicknameCommand nicknameCommand = new NicknameCommand(nameColor);
-        NicknameTabCompleter nicknameTabCompleter = new NicknameTabCompleter();
-        registerCommand("nick", nicknameCommand, nicknameTabCompleter);
-        registerCommand("nickname", nicknameCommand, nicknameTabCompleter);
+        if (nameColor.getConfig().getBoolean("enable-nick")) {
+            NicknameCommand nicknameCommand = new NicknameCommand(nameColor);
+            NicknameTabCompleter nicknameTabCompleter = new NicknameTabCompleter();
+            registerCommand("nick", nicknameCommand, nicknameTabCompleter);
+            registerCommand("nickname", nicknameCommand, nicknameTabCompleter);
+        } else {
+            MessengerCommand disabledCommand = new MessengerCommand(nameColor, Message.NICK_DISABLED);
+            registerCommand("nick", disabledCommand, null);
+            registerCommand("nickname", disabledCommand, null);
+        }
 
-        if(nameColor.getConfig().getBoolean("color-command")) {
+        if (nameColor.getConfig().getBoolean("color-command")) {
             try {
                 registerCommand("color", new ColorsCommand(), null);
             } catch(Exception ignored) {
@@ -58,16 +66,16 @@ public class ClassRegistryManager {
 
     private void registerCommand(String name, CommandExecutor executor, TabCompleter tabCompleter) {
         var command = nameColor.getCommand(name);
-        if(command == null) {
+        if (command == null) {
             nameColor.getLogger().warning("Failed to register command " + name);
             return;
         }
 
-        if(executor != null) {
+        if (executor != null) {
             command.setExecutor(executor);
         }
 
-        if(tabCompleter != null) {
+        if (tabCompleter != null) {
             command.setTabCompleter(tabCompleter);
         }
     }

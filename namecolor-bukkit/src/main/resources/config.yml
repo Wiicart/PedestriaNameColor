@@ -46,6 +46,9 @@ nick-prefix: ''
 # (shows Minecraft color codes)
 color-command: true
 
+# Enable nickname command (/nick)
+enable-nick: true
+
 # +----- Messages -----+
 # Note: prefix is used before all messages.
 # Compatible with '&' color codes.
@@ -165,3 +168,6 @@ color-specific: '&fYou don''t have permission to use &7%color%&f.'
 
 # Unknown style
 unknown-style: '&fUnknown style.'
+
+# Nickname command disabled message
+nick-disabled: '&fNicknames are currently disabled.'
