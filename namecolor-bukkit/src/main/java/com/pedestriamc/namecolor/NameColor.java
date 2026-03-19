@@ -29,9 +29,9 @@ import java.util.Objects;
 
 public final class NameColor extends JavaPlugin {
 
-    public static final String PLUGIN_VERSION = "1.11";
-    public static final short PLUGIN_NUMBER = 13;
-    public static final String DISTRIBUTOR = "hangar";
+    public static final String PLUGIN_VERSION = "1.11.3";
+    public static final short PLUGIN_NUMBER = 14;
+    public static final String DISTRIBUTOR = "github";
 
     private FileManager fileManager;
     private NameUtilities nameUtilities;
@@ -128,7 +128,7 @@ public final class NameColor extends JavaPlugin {
             return;
         }
 
-        if(getServer().getPluginManager().getPlugin("Essentials") != null) {
+        if (getServer().getPluginManager().getPlugin("Essentials") != null) {
             info("Essentials plugin found, using Essentials mode.");
             mode = Mode.ESSENTIALS;
         } else {

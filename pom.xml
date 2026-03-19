@@ -5,7 +5,7 @@
 
     <groupId>com.pedestriamc.namecolor</groupId>
     <artifactId>NameColor</artifactId>
-    <version>1.11.1</version>
+    <version>1.11.3</version>
     <modules>
         <module>namecolor-api</module>
         <module>namecolor-bukkit</module>
@@ -68,6 +68,33 @@
                             </includes>
                         </filter>
                     </filters>
+                    <relocations>
+                        <relocation>
+                            <pattern>de.themoep.inventorygui</pattern>
+                            <shadedPattern>com.pedestriamc.shaded.inventorygui</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.tchristofferson.configupdater</pattern>
+                            <shadedPattern>com.pedestriamc.shaded.configupdater</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.zaxxer.hikari</pattern>
+                            <shadedPattern>com.pedestriamc.shaded.hikari</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.postgresql</pattern>
+                            <shadedPattern>com.pedestriamc.shaded.pg</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.mariadb.jdbc</pattern>
+                            <shadedPattern>com.pedestriamc.shaded.mariadb</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.mysql.cj</pattern>
+                            <shadedPattern>com.pedestriamc.shaded.mysql</shadedPattern>
+                        </relocation>
+                    </relocations>
+
                 </configuration>
             </plugin>
             <plugin>
