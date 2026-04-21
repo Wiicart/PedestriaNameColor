@@ -59,8 +59,7 @@ public class ClassRegistryManager {
         if (nameColor.getConfig().getBoolean("color-command")) {
             try {
                 registerCommand("color", new ColorsCommand(), null);
-            } catch(Exception ignored) {
-            }
+            } catch(Exception ignored) {}
         }
     }
 

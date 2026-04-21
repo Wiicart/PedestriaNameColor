@@ -29,9 +29,9 @@ import java.util.Objects;
 
 public final class NameColor extends JavaPlugin {
 
-    public static final String PLUGIN_VERSION = "1.11.3";
-    public static final short PLUGIN_NUMBER = 14;
-    public static final String DISTRIBUTOR = "github";
+    public static final String PLUGIN_VERSION = "1.11.4";
+    public static final short PLUGIN_NUMBER = 15;
+    public static final String DISTRIBUTOR = "modrinth";
 
     private FileManager fileManager;
     private NameUtilities nameUtilities;
@@ -145,7 +145,8 @@ public final class NameColor extends JavaPlugin {
 
     private void checkForUpdate() {
         try {
-            HttpsURLConnection connection = (HttpsURLConnection) new URL("https://wiicart.net/namecolor/version.txt").openConnection();
+            HttpsURLConnection connection
+                    = (HttpsURLConnection) new URL("https://wiicart.net/namecolor/version.txt").openConnection();
             connection.setRequestMethod("GET");
             String raw = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
             short latest = Short.parseShort(raw);

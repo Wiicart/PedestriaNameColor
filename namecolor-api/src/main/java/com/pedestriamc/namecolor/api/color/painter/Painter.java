@@ -26,7 +26,7 @@ public interface Painter {
      * Uses Colors from net.md_5.bungee.api.ChatColor.
      * Automatically strips colors, except for styles.
      */
-    Painter BUNGEE_STRIP_IGNORE_STYLES = new BungeeStripIgnoreStylesPainter();
+    Painter BUNGEE_STRIP_IGNORE_STYLES = new BungeeStripRetainStylesPainter();
 
 
     @NotNull

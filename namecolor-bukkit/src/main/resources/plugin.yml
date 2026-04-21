@@ -8,6 +8,9 @@ description: A plugin to change user's name colors
 website: 'https://pedestriamc.com'
 softdepend: [Essentials, ProtocolLib, PlaceholderAPI]
 commands:
+  color:
+    description: "Shows a list of colors"
+    usage: /color
   namecolor:
     description: "Changes player's name color"
     usage: /namecolor <color>
